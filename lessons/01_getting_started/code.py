@@ -50,7 +50,8 @@ KNOWLEDGE = [
 ]
 
 # 要问的问题。运行后可以改这里试不同问题。
-QUESTION = "我在公司干了 4 年，能休几天年假？"
+# QUESTION = "我在公司干了 4 年，能休几天年假？"
+QUESTION = "我生病了去医院了，但是医院没给我开病假单。还能请病假嘛？我们的病假制度是怎么样的？"
 
 
 # ════════════════════════════════════════════════════════════
@@ -97,6 +98,11 @@ def build_knowledge_base(client: ZhipuAI):
     """
     # 1) 先算出每条知识的向量
     embeddings = embed_texts(client, KNOWLEDGE)
+
+    # ── 调试：看看 embeddings 长什么样 ──
+    print(type(embeddings))              # <class 'list'>
+    print(f"共 {len(embeddings)} 条向量，每条维度 = {len(embeddings[0])}")
+    print(f"第一条向量前 10 个值：{embeddings[0][:10]}")
 
     # 2) 建一个 Chroma 集合，把 (文本, 向量, 编号) 存进去
     db = chromadb.PersistentClient(path=CHROMA_PATH)
@@ -175,6 +181,13 @@ def main():
 
     # 1 & 2. 建知识库（文本 → 向量 → 存 Chroma）
     collection = build_knowledge_base(client)
+
+    # ── 调试：看看 Chroma 里到底存了什么 ──
+    all_data = collection.get(include=["embeddings", "documents"])
+    print("\n🗄️  Chroma 集合里的所有内容：")
+    for i, (doc_id, doc) in enumerate(zip(all_data["ids"], all_data["documents"]), 1):
+        print(f"  [{i}] id={doc_id}  text={doc[:30]}...")  # 文本只打前30字
+    print(f"  向量维度验证：第一条向量有 {len(all_data['embeddings'][0])} 维")
 
     # 3. 检索
     print(f"\n🔎 问题：{QUESTION}")
