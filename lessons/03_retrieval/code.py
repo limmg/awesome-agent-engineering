@@ -47,7 +47,8 @@ METADATA = [
     {"category": "远程"},
 ]
 
-QUESTION = "我出差住了两晚酒店，能报多少住宿费？"
+#QUESTION = "我出差住了两晚酒店，能报多少住宿费？"
+QUESTION = "我在家办公的时候生病了，能请病假吗？"
 
 
 def create_zhipu_client() -> ZhipuAI:
@@ -180,7 +181,7 @@ def section_metadata_filter(collection, query_vec):
         print(f"  {1 - dist:.4f} | {doc}")
 
     print("\n【过滤 category='报销'】Top-3：")
-    for doc, dist in chroma_search(collection, query_vec, top_k=3, where={"category": "报销"}):
+    for doc, dist in chroma_search(collection, query_vec, top_k=3, where={"category": "远程"}):
         print(f"  {1 - dist:.4f} | {doc}")
 
     print("\n👉 观察：加过滤后，结果全是'报销'类，不会被请假/远程类的内容干扰。")
@@ -238,13 +239,13 @@ def main():
     collection = section_brute_vs_chroma(client, doc_vectors, query_vec)
 
     # ② Top-K 实验
-    section_top_k_experiment(collection, query_vec)
+    #section_top_k_experiment(collection, query_vec)
 
     # ③ metadata 过滤
     section_metadata_filter(collection, query_vec)
 
     # ④ 距离度量对比
-    section_distance_metrics(doc_vectors, query_vec)
+    #section_distance_metrics(doc_vectors, query_vec)
 
     print("\n" + "=" * 60)
     print("完成！你现在理解了检索的本质：算距离 + 排序 + 取 Top-K。")
