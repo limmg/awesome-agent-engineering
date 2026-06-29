@@ -62,6 +62,18 @@ def calculator(expression: str) -> str:
         return f"计算错误：{e}"
 
 
+def get_day_of_week(date_str: str = None) -> str:
+    """获取指定日期（或今天）是星期几。"""
+    days = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+    try:
+        if date_str:
+            dt = datetime.strptime(date_str, "%Y-%m-%d")
+        else:
+            dt = datetime.now()
+        return f"{dt.strftime('%Y-%m-%d')} 是 {days[dt.weekday()]}"
+    except ValueError:
+        return f"错误：日期格式不对，请使用 YYYY-MM-DD 格式，如 2026-06-29"
+
 # ════════════════════════════════════════════════════════════
 # 第 2 步：把工具"告诉"大模型（tools 定义）
 # ════════════════════════════════════════════════════════════
@@ -101,6 +113,23 @@ TOOLS = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_day_of_week",
+            "description": "根据日期字符串获取是星期几。当用户问'今天是星期几''某年某月某日是周几'时使用。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "date_str": {
+                        "type": "string",
+                        "description": "日期字符串，格式为 YYYY-MM-DD，如 '2026-06-29'。如果不传则默认查今天。",
+                    }
+                },
+                "required": [],
+            },
+        },
+    }
 ]
 
 
@@ -113,6 +142,8 @@ def execute_function(name: str, arguments: dict) -> str:
         return get_current_time()
     elif name == "calculator":
         return calculator(arguments.get("expression", ""))
+    elif name == "get_day_of_week":
+        return get_day_of_week(arguments.get("date_str"))
     else:
         return f"未知函数：{name}"
 
@@ -129,7 +160,16 @@ def run_agent(client: ZhipuAI, user_question: str, max_steps: int = 5):
         3. 如果 LLM 直接给答案 → 结束
     """
     # messages 记录整个对话历史（包括工具调用和结果）
-    messages = [{"role": "user", "content": user_question}]
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "你是严谨的助手。遇到涉及日期/时间的计算时，"
+                "必须先用 get_current_time 获取当前准确时间，再推理。不要凭空猜测日期。"
+            ),
+        },
+        {"role": "user", "content": user_question},
+    ]
 
     for step in range(1, max_steps + 1):
         print(f"\n{'─' * 50}")
@@ -143,6 +183,12 @@ def run_agent(client: ZhipuAI, user_question: str, max_steps: int = 5):
             tool_choice="auto",  # auto = 让 LLM 自己决定要不要用工具
         )
         msg = response.choices[0].message
+
+        # ── 调试：打印 LLM 本轮输出 ──
+        if msg.content:
+            print(f"🗣️  LLM 说：{msg.content}")
+        if msg.tool_calls:
+            print(f"🛠️  LLM 想调 {len(msg.tool_calls)} 个工具")
 
         # 情况 A：LLM 决定调用工具
         if msg.tool_calls:
@@ -198,11 +244,17 @@ def main():
     print("═" * 60)
     run_agent(client, "现在是几点？距离今天 18:00 还有多少分钟？（请用计算器算）")
 
-    # 问题 3：不需要工具（看 Agent 会不会跳过工具）
+    # 问题 3：不需要工具（看 Agent 会不会跳过工具） "帮我算一下 abc + 123"
     print("\n\n" + "═" * 60)
-    print("问题 3：请用一句话介绍你自己（不需要工具）")
+    print("问题 3：帮我算一下 abc + 123")
     print("═" * 60)
-    run_agent(client, "请用一句话介绍你自己。")
+    run_agent(client, "帮我算一下 abc + 123")
+
+    # 问题 4：今天星期几？是星期四嘛？后天星期几啊？
+    print("\n\n" + "═" * 60)
+    print("问题 4：今天星期几？是星期四嘛？后天星期几啊？")
+    print("═" * 60)
+    run_agent(client, "今天星期几？是星期四嘛？后天星期几啊？")
 
     print("\n" + "=" * 60)
     print("完成！你刚刚看到了一个 Agent 的工作过程。")
