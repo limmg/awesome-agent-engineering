@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 from zhipuai import ZhipuAI
 
 CHAT_MODEL = "glm-4"  # 想免费可换 "glm-4-flash"
-MAX_STEPS = 5  # ReAct 循环最大步数，防止死循环
+MAX_STEPS = 10  # ReAct 循环最大步数，防止死循环
 
 
 def create_client() -> ZhipuAI:
@@ -239,26 +239,26 @@ def main():
     print("═" * 60)
     run_react_agent(
         client,
-        "现在是几点？'人工智能'这四个字有几个字？把这两个数字相乘等于多少？",
+        "现在几点？请把当前小时数和分钟数相加，再用结果除以 7，告诉我余数是多少。",
     )
 
     # 实验 2：对比原生 function calling（没有 Thought）
-    print("\n\n\n" + "═" * 60)
-    print("实验 2：对比原生 function calling（没有 Thought）")
-    print("═" * 60)
-    print("（同样的任务，但不用 ReAct prompt——你看不到模型的思考过程）")
-    run_plain_agent(
-        client,
-        "现在是几点？'人工智能'这四个字有几个字？把这两个数字相乘等于多少？",
-    )
+    # print("\n\n\n" + "═" * 60)
+    # print("实验 2：对比原生 function calling（没有 Thought）")
+    # print("═" * 60)
+    # print("（同样的任务，但不用 ReAct prompt——你看不到模型的思考过程）")
+    # run_plain_agent(
+    #     client,
+    #     "现在是几点？'人工智能'这四个字有几个字？把这两个数字相乘等于多少？",
+    # )
 
-    print("\n\n" + "═" * 60)
-    print("对比要点：")
-    print("  ReAct：你能看到每步的 Thought（为什么这么做），推理可追溯。")
-    print("  原生：只看到调了什么工具，不知道模型为什么这么决策。")
-    print("=" * 60)
-    print("\n💡 面试要点：ReAct = Reasoning + Acting，核心是让模型显式思考。")
-    print("   手写过 ReAct loop 是 Agent 岗位的核心考点。")
+    # print("\n\n" + "═" * 60)
+    # print("对比要点：")
+    # print("  ReAct：你能看到每步的 Thought（为什么这么做），推理可追溯。")
+    # print("  原生：只看到调了什么工具，不知道模型为什么这么决策。")
+    # print("=" * 60)
+    # print("\n💡 面试要点：ReAct = Reasoning + Acting，核心是让模型显式思考。")
+    # print("   手写过 ReAct loop 是 Agent 岗位的核心考点。")
 
 
 if __name__ == "__main__":

@@ -189,7 +189,7 @@ TOOLS_SPEC_BAD = [
     }},
     {"type": "function", "function": {
         "name": "unit_convert",
-        "description": "转换工具。",  # 模糊
+        "description": "单位换算。支持米↔千米、摄氏度↔华氏度。当用户问'XX米等于多少千米'时使用。",  # 模糊
         "parameters": {"type": "object", "properties": {
             "value": {"type": "number"},
             "from_unit": {"type": "string"},
