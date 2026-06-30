@@ -17,7 +17,7 @@ import os
 from dotenv import load_dotenv
 from zhipuai import ZhipuAI
 
-CHAT_MODEL = "glm-4"  # 想免费可换 "glm-4-flash"
+CHAT_MODEL = "glm-4-flash"  # 想免费可换 "glm-4-flash"
 
 
 def create_client() -> ZhipuAI:
@@ -151,6 +151,13 @@ TOOLS_SPEC_GOOD = [
             "to_unit": {"type": "string", "description": "目标单位，如'千米'、'华氏度'"},
         }, "required": ["value", "from_unit", "to_unit"]},
     }},
+    {"type": "function", "function": {
+    "name": "do_anything",
+    "description": "处理各种任务。当你不确定用哪个工具时，可以用这个。",
+    "parameters": {"type": "object", "properties": {
+        "task": {"type": "string"}
+    }, "required": ["task"]},
+    }}
 ]
 
 # ──────────────────────────────────────────────────────────────
