@@ -271,14 +271,15 @@ def execute_function(name: str, arguments: dict, extreme: bool = False) -> str:
         return f"工具执行失败：{e}"
 
 
-def run_agent(client: ZhipuAI, question: str, tools_spec: list, max_steps: int = 6, extreme: bool = False) -> str | None:
+def run_agent(client: ZhipuAI, question: str, tools_spec: list, max_steps: int = 6, extreme: bool = False, model: str = None) -> str | None:
     """运行 Agent，用指定的 tools_spec（好版/差版）。extreme=True 时参数名需要映射。"""
+    _model = model or CHAT_MODEL
     messages = [{"role": "user", "content": question}]
     used_tools = []  # 记录用过哪些工具，供分析
 
     for step in range(1, max_steps + 1):
         response = client.chat.completions.create(
-            model=CHAT_MODEL, messages=messages, tools=tools_spec, tool_choice="auto"
+            model=_model, messages=messages, tools=tools_spec, tool_choice="auto"
         )
         msg = response.choices[0].message
         if msg.tool_calls:
@@ -300,63 +301,71 @@ def main():
     print("=" * 60)
     print("L04 — 多工具与工具设计")
     print("=" * 60)
-    client = create_client()
+    client_strong = create_client()
+    print(f"\n当前强模型：{CHAT_MODEL}（请确认你在用 glm-4 而非 flash）")
 
-    # 实验 1：好 description，复杂多工具任务
+    # ════════════════════════════════════════════════════════════
+    # 实验 1：glm-4 + 好 spec → 完美
+    # ════════════════════════════════════════════════════════════
     print("\n" + "═" * 60)
-    print("实验 1：好的 description（清晰具体），多工具配合任务")
+    print("实验 1：强模型 + 好 description（基线，肯定全对）")
     print("═" * 60)
-    print("问题：帮我把 5 千米换算成米，然后把结果和 1234 相加，最后算 '人工智能' 有几个字。")
-    print("（需要 unit_convert → calculator → string_length 三个工具配合）\n")
     run_agent(
-        client,
+        client_strong,
         "帮我把 5 千米换算成米，然后把结果和 1234 相加，最后算 '人工智能' 有几个字。",
         TOOLS_SPEC_GOOD,
     )
 
-    # 实验 2：差 description，同样的问题（看会不会选错）
+    # ════════════════════════════════════════════════════════════
+    # 实验 2：glm-4 + 极限坏 spec → glm-4 可能还能猜对
+    # ════════════════════════════════════════════════════════════
     print("\n\n" + "═" * 60)
-    print("实验 2：差的 description（模糊重叠），同样的问题")
+    print("实验 2：强模型 + 极限坏 description（参数名也混淆）")
     print("═" * 60)
-    print("（description 都写成'处理XX'，但参数名仍有线索——模型还能猜对）\n")
+    print("（glm-4 太强了，即使参数都叫 p1/p2/p3，它还是能通过参数类型和数量推理出来）\n")
     run_agent(
-        client,
-        "帮我把 5 千米换算成米，然后把结果和 1234 相加，最后算 '人工智能' 有几个字。",
-        TOOLS_SPEC_BAD,
-    )
-
-    # 实验 2b：极限坏（参数名也混淆），同样的问题
-    print("\n\n" + "═" * 60)
-    print("实验 2b：极限坏（description + 参数名全部混淆）")
-    print("═" * 60)
-    print("（参数名改成 p1/p2/p3，string_length 和 string_reverse 完全一样）\n")
-    run_agent(
-        client,
+        client_strong,
         "帮我把 5 千米换算成米，然后把结果和 1234 相加，最后算 '人工智能' 有几个字。",
         TOOLS_SPEC_BAD_EXTREME,
         extreme=True,
     )
 
-    # 实验 3：功能重叠（list_sort vs calculator 都"处理数字"）
+    # ════════════════════════════════════════════════════════════
+    # 实验 3：glm-4-flash + 极限坏 spec → 对比弱模型
+    # ════════════════════════════════════════════════════════════
     print("\n\n" + "═" * 60)
-    print("实验 3：极限坏版下的功能重叠")
+    print("实验 3：弱模型 glm-4-flash + 极限坏 description（关键对比！）")
     print("═" * 60)
-    print("问题：帮我把 3,1,4,1,5,9,2,6 这组数字排序。")
-    print("（所有工具描述都极模糊，list_sort 和 calculator 完全分辨不出区别）\n")
+    print("（同样的问题和工具，但换成 glm-4-flash——观察弱模型会不会翻车）\n")
     run_agent(
-        client,
+        client_strong,
+        "帮我把 5 千米换算成米，然后把结果和 1234 相加，最后算 '人工智能' 有几个字。",
+        TOOLS_SPEC_BAD_EXTREME,
+        extreme=True,
+        model="glm-4-flash",
+    )
+
+    # ════════════════════════════════════════════════════════════
+    # 实验 4：功能重叠 + 弱模型 → 选错概率最高
+    # ════════════════════════════════════════════════════════════
+    print("\n\n" + "═" * 60)
+    print("实验 4：弱模型 + 功能重叠（list_sort vs calculator 无法区分）")
+    print("═" * 60)
+    print("（所有工具描述都极模糊，试试 glm-4-flash 能不能选对 list_sort）\n")
+    run_agent(
+        client_strong,
         "帮我把 3,1,4,1,5,9,2,6 这组数字排序。",
         TOOLS_SPEC_BAD_EXTREME,
         extreme=True,
+        model="glm-4-flash",
     )
 
     print("\n" + "═" * 60)
     print("对比要点：")
-    print("  好 description：模型选得准、传参对。")
-    print("  中等差 description：参数名仍有线索，强模型可能猜对。")
-    print("  极限差（参数名也混淆）：模型彻底蒙圈，选错/传错参数。")
-    print("  💡 工具设计的核心：description + 参数名都是给模型的'线索'。")
-    print("     如果是 glm-4-flash 等弱模型，中等差版就会翻车。")
+    print("  实验 1（强模型+好 spec）：✓ 完美")
+    print("  实验 2（强模型+极限坏）：glm-4 靠参数类型/数量仍可能猜对")
+    print("  实验 3（弱模型+极限坏）：弱模型更容易翻车")
+    print("  实验 4（弱模型+功能重叠）：模糊工具间的选择，最容易被混淆")
     print("=" * 60)
 
 
