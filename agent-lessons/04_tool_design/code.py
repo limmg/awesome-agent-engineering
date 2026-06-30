@@ -199,17 +199,80 @@ TOOLS_SPEC_BAD = [
 ]
 
 
-def execute_function(name: str, arguments: dict) -> str:
+# ──────────────────────────────────────────────────────────────
+# 极限差的 description 版本（参数名也混淆）
+# ──────────────────────────────────────────────────────────────
+TOOLS_SPEC_BAD_EXTREME = [
+    {"type": "function", "function": {
+        "name": "get_weather",
+        "description": "获取数据。",
+        "parameters": {"type": "object", "properties": {
+            "p1": {"type": "string"}}, "required": ["p1"]},
+    }},
+    {"type": "function", "function": {
+        "name": "calculator",
+        "description": "计算。",
+        "parameters": {"type": "object", "properties": {
+            "p1": {"type": "string"}}, "required": ["p1"]},
+    }},
+    {"type": "function", "function": {
+        "name": "string_length",
+        "description": "操作文本。",
+        "parameters": {"type": "object", "properties": {
+            "p1": {"type": "string"}}, "required": ["p1"]},
+    }},
+    {"type": "function", "function": {
+        "name": "string_reverse",
+        "description": "操作文本。",
+        "parameters": {"type": "object", "properties": {
+            "p1": {"type": "string"}}, "required": ["p1"]},
+    }},
+    {"type": "function", "function": {
+        "name": "list_sort",
+        "description": "处理。",
+        "parameters": {"type": "object", "properties": {
+            "p1": {"type": "array", "items": {"type": "number"}}}, "required": ["p1"]},
+    }},
+    {"type": "function", "function": {
+        "name": "unit_convert",
+        "description": "转换。",
+        "parameters": {"type": "object", "properties": {
+            "p1": {"type": "number"},
+            "p2": {"type": "string"},
+            "p3": {"type": "string"},
+        }, "required": ["p1", "p2", "p3"]},
+    }},
+]
+
+# 极限坏版的参数映射：把 p1/p2/p3 映射回真实参数名
+EXTREME_ARG_MAP = {
+    "get_weather": {"p1": "city"},
+    "calculator": {"p1": "expression"},
+    "string_length": {"p1": "text"},
+    "string_reverse": {"p1": "text"},
+    "list_sort": {"p1": "numbers"},
+    "unit_convert": {"p1": "value", "p2": "from_unit", "p3": "to_unit"},
+}
+
+
+def execute_function(name: str, arguments: dict, extreme: bool = False) -> str:
     if name not in TOOL_REGISTRY:
         return f"错误：工具 '{name}' 不存在"
+    # 极限坏版：参数名是 p1/p2/p3，需要映射回真实参数名
+    if extreme and name in EXTREME_ARG_MAP:
+        mapped = {}
+        for fake_key, real_key in EXTREME_ARG_MAP[name].items():
+            if fake_key in arguments:
+                mapped[real_key] = arguments[fake_key]
+        arguments = mapped
     try:
         return str(TOOL_REGISTRY[name](**arguments))
     except Exception as e:
         return f"工具执行失败：{e}"
 
 
-def run_agent(client: ZhipuAI, question: str, tools_spec: list, max_steps: int = 6) -> str | None:
-    """运行 Agent，用指定的 tools_spec（好版/差版）。"""
+def run_agent(client: ZhipuAI, question: str, tools_spec: list, max_steps: int = 6, extreme: bool = False) -> str | None:
+    """运行 Agent，用指定的 tools_spec（好版/差版）。extreme=True 时参数名需要映射。"""
     messages = [{"role": "user", "content": question}]
     used_tools = []  # 记录用过哪些工具，供分析
 
@@ -223,7 +286,7 @@ def run_agent(client: ZhipuAI, question: str, tools_spec: list, max_steps: int =
             for tc in msg.tool_calls:
                 name = tc.function.name
                 args = json.loads(tc.function.arguments)
-                result = execute_function(name, args)
+                result = execute_function(name, args, extreme=extreme)
                 used_tools.append(name)
                 print(f"  第{step}步 调用 {name}({args}) → {result[:50]}")
                 messages.append({"role": "tool", "tool_call_id": tc.id, "content": result})
@@ -255,26 +318,45 @@ def main():
     print("\n\n" + "═" * 60)
     print("实验 2：差的 description（模糊重叠），同样的问题")
     print("═" * 60)
-    print("（description 都写成'处理XX'，模型很难选对——观察它会不会乱选）\n")
+    print("（description 都写成'处理XX'，但参数名仍有线索——模型还能猜对）\n")
     run_agent(
         client,
         "帮我把 5 千米换算成米，然后把结果和 1234 相加，最后算 '人工智能' 有几个字。",
         TOOLS_SPEC_BAD,
     )
 
+    # 实验 2b：极限坏（参数名也混淆），同样的问题
+    print("\n\n" + "═" * 60)
+    print("实验 2b：极限坏（description + 参数名全部混淆）")
+    print("═" * 60)
+    print("（参数名改成 p1/p2/p3，string_length 和 string_reverse 完全一样）\n")
+    run_agent(
+        client,
+        "帮我把 5 千米换算成米，然后把结果和 1234 相加，最后算 '人工智能' 有几个字。",
+        TOOLS_SPEC_BAD_EXTREME,
+        extreme=True,
+    )
+
     # 实验 3：功能重叠（list_sort vs calculator 都"处理数字"）
     print("\n\n" + "═" * 60)
-    print("实验 3：功能重叠场景")
+    print("实验 3：极限坏版下的功能重叠")
     print("═" * 60)
     print("问题：帮我把 3,1,4,1,5,9,2,6 这组数字排序。")
-    print("（差版里 list_sort 和 calculator 都叫'处理数字'，看模型选哪个）\n")
-    run_agent(client, "帮我把 3,1,4,1,5,9,2,6 这组数字排序。", TOOLS_SPEC_BAD)
+    print("（所有工具描述都极模糊，list_sort 和 calculator 完全分辨不出区别）\n")
+    run_agent(
+        client,
+        "帮我把 3,1,4,1,5,9,2,6 这组数字排序。",
+        TOOLS_SPEC_BAD_EXTREME,
+        extreme=True,
+    )
 
     print("\n" + "═" * 60)
     print("对比要点：")
     print("  好 description：模型选得准、传参对。")
-    print("  差 description：模型可能选错工具、传错参数，甚至不会用。")
-    print("  💡 工具设计的核心：description 是写给模型的'广告语'，要清晰、具体、不重叠。")
+    print("  中等差 description：参数名仍有线索，强模型可能猜对。")
+    print("  极限差（参数名也混淆）：模型彻底蒙圈，选错/传错参数。")
+    print("  💡 工具设计的核心：description + 参数名都是给模型的'线索'。")
+    print("     如果是 glm-4-flash 等弱模型，中等差版就会翻车。")
     print("=" * 60)
 
 
