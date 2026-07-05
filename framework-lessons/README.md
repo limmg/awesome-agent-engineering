@@ -28,7 +28,7 @@
 | 02 | [Models + Prompts + Output Parsers](02_models_prompts_parsers/) | RAG L05、Agent L02 |
 | 03 | [Loaders + Splitters + VectorStores](03_documents_splitter_vectorstore/) | RAG L03、L04 |
 | 04 | [Retrievers + RAG Chain](04_retrievers_rag_chain/) | RAG L01-L05 |
-| 05 | 高级检索工程化（即将推出）| RAG L06、L07 |
+| 05 | [高级检索工程化：Ensemble + MultiQuery](05_advanced_retrieval/) | RAG L06、L07 |
 
 ### 第二段：LangGraph — Agent 工程化（L06-L09）
 
@@ -39,7 +39,7 @@
 | 08 | 状态持久化 + 人机协作（即将推出）| Agent L05 |
 | 09 | 毕业项目：LangGraph 研究助手（即将推出）| Agent L09、L07 |
 
-> 目前已完成 **4 / 9** 节课。每课包含原理讲解 + 可运行代码 + 练习。
+> 目前已完成 **5 / 9** 节课（LangChain 段全部完成 🎉）。每课包含原理讲解 + 可运行代码 + 练习。
 
 ---
 
