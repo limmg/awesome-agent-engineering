@@ -49,7 +49,7 @@
 |---|------|---------|
 | 09 | [毕业项目：多智能体研究系统](09_capstone/) | supervisor + 并行 + 共享态 + 多模型 + 子图 |
 
-> 目前已完成 **0 / 9** 节课。每课包含原理讲解 + 可运行代码 + 练习。
+> 目前已完成 **1 / 9** 节课（L01 Supervisor 主从模式）。每课包含原理讲解 + 可运行代码 + 练习。
 
 ---
 
@@ -121,7 +121,7 @@ RAG-test/
 | `autogen-agentchat` | 0.7.5 | L08 对比框架（对话驱动，**异步架构**）|
 | `autogen-ext[openai]` | 0.7.5 | AutoGen 接 OpenAI 兼容协议的 client |
 | `litellm` | 1.91.0 | CrewAI/AutoGen 接智谱 GLM 的桥 |
-| `langgraph-supervisor` | 待 L01 验证 | supervisor prebuilt（L01）|
+| `langgraph-supervisor` | 0.0.31（L01 已验证）| supervisor prebuilt（L01）|
 | `langgraph-swarm` | 待 L02 验证 | swarm prebuilt（L02）|
 
 > ⚠️ **两个已踩到的国产模型坑**（将变成教学点）：
