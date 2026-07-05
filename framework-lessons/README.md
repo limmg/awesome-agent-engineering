@@ -34,12 +34,12 @@
 
 | # | 课程 | 对应你的手写课 |
 |---|------|---------------|
-| 06 | StateGraph 重写 ReAct（即将推出）| Agent L03 |
+| 06 | [StateGraph 重写 ReAct](06_langgraph_basics/) | Agent L03 |
 | 07 | @tool 工具 + 预置 Agent（即将推出）| Agent L02、L04 |
 | 08 | 状态持久化 + 人机协作（即将推出）| Agent L05 |
 | 09 | 毕业项目：LangGraph 研究助手（即将推出）| Agent L09、L07 |
 
-> 目前已完成 **5 / 9** 节课（LangChain 段全部完成 🎉）。每课包含原理讲解 + 可运行代码 + 练习。
+> 目前已完成 **6 / 9** 节课（LangGraph 段进行中）。每课包含原理讲解 + 可运行代码 + 练习。
 
 ---
 
