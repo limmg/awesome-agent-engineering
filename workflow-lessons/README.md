@@ -49,7 +49,7 @@
 |---|------|---------|
 | 09 | [毕业项目：多智能体研究系统](09_capstone/) | supervisor + 并行 + 共享态 + 多模型 + 子图 |
 
-> 目前已完成 **1 / 9** 节课（L01 Supervisor 主从模式）。每课包含原理讲解 + 可运行代码 + 练习。
+> 目前已完成 **2 / 9** 节课（L01 Supervisor 主从模式、L02 Swarm 与 Handoff）。每课包含原理讲解 + 可运行代码 + 练习。
 
 ---
 
@@ -122,7 +122,7 @@ RAG-test/
 | `autogen-ext[openai]` | 0.7.5 | AutoGen 接 OpenAI 兼容协议的 client |
 | `litellm` | 1.91.0 | CrewAI/AutoGen 接智谱 GLM 的桥 |
 | `langgraph-supervisor` | 0.0.31（L01 已验证）| supervisor prebuilt（L01）|
-| `langgraph-swarm` | 待 L02 验证 | swarm prebuilt（L02）|
+| `langgraph-swarm` | 0.1.0（L02 已验证）| swarm prebuilt（L02）|
 
 > ⚠️ **两个已踩到的国产模型坑**（将变成教学点）：
 > - **CrewAI**：用 `LLM(model='openai/glm-4')` 走 litellm，且要关 `CREWAI_TRACING_ENABLED` 避免交互提示
