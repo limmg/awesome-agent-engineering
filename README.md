@@ -1,23 +1,24 @@
 # LLM 应用实战课程 📚
 
-这是一套**从零开始、系统掌握大模型应用开发**的实战课程，覆盖 **RAG、Agent、框架工程化** 三大方向。
-面向**会 Python 但刚接触大模型**的开发者，用可运行的代码 + 原理讲解，一步步从原理手写到框架落地。
+这是一套**从零开始、系统掌握大模型应用开发**的实战课程，覆盖 **RAG、Agent、框架工程化、多智能体编排** 四大方向。
+面向**会 Python 但刚接触大模型**的开发者，用可运行的代码 + 原理讲解，一步步从原理手写到框架落地，再到多 Agent 协作架构。
 
-> 技术栈：智谱 GLM-4 + embedding-3 · Chroma 本地向量库 · LangChain + LangGraph · Python
+> 技术栈：智谱 GLM-4 + embedding-3 · Chroma 本地向量库 · LangChain + LangGraph · CrewAI · AutoGen · Python
 
 ---
 
-## 🗺️ 三门课程总览
+## 🗺️ 四门课程总览
 
-本工作区包含**三门递进课程**，建议按顺序学：
+本工作区包含**四门递进课程**，建议按顺序学：
 
 | 课程 | 内容 | 状态 |
 |------|------|------|
 | 📘 [RAG 手写课程](rag-lessons/) | 从零系统理解 RAG 原理（embedding→检索→切块→prompt→混合检索→改写→评估→工程化）| ✅ 9/9 完成 |
 | 🤖 [Agent 手写课程](agent-lessons/) | 从零系统理解 AI Agent 原理（Function Calling→ReAct→工具设计→记忆→规划→Agentic RAG→多智能体→毕业项目）| ✅ 9/9 完成 |
 | 🔧 [框架进阶课程](framework-lessons/) | LangChain + LangGraph 工程化（把手写原理翻译成框架，每课做"手写版 vs 框架版"对比）| ✅ 9/9 完成 |
+| 🔀 [工作流与多智能体编排](workflow-lessons/) | 多 Agent 协作架构（supervisor/swarm/子图/并行/共享态/多模型，三框架横向对比）| 🚧 0/9 进行中 |
 
-> **学习路径**：先学 RAG（懂检索原理）→ 再学 Agent（懂自主决策）→ 最后学框架进阶（工程化落地）。
+> **学习路径**：先学 RAG（懂检索原理）→ 再学 Agent（懂自主决策）→ 再学框架进阶（工程化落地）→ 最后学多智能体编排（架构师进阶）。
 
 ---
 
@@ -81,6 +82,27 @@
 
 ---
 
+## 🔀 课程四：工作流与多智能体编排课程（共 9 节课）
+
+前三门课解决「单 Agent + 单流程」，本课进入「**多 Agent 协作编排**」——AI 架构师方向核心能力。
+以 LangGraph 为主干讲透 6 种经典拓扑，再用 CrewAI / AutoGen 做同一问题的横向范式对比：
+
+| # | 课程 | 你会学到 |
+|---|------|----------|
+| 01 | [Supervisor 主从模式](workflow-lessons/01_supervisor_pattern/) | 中心化动态路由调度（对比手写 L08 写死的 for 循环） |
+| 02 | [Swarm 与 Handoff](workflow-lessons/02_swarm_handoff/) | 去中心化群体 + 状态交接（对比手写字符串拼接） |
+| 03 | [子图 Subgraph](workflow-lessons/03_subgraph/) | 把编译好的图当节点嵌入，模块化复用 |
+| 04 | [并行 Map-Reduce](workflow-lessons/04_parallel_mapreduce/) | fan-out 爆发 + reducer 合并（手写做不到的并行） |
+| 05 | [共享状态通信](workflow-lessons/05_shared_state/) | 消息 / 共享态 / 黑板三种通信机制对比 |
+| 06 | [多模型路由与拓扑](workflow-lessons/06_multimodel_routing/) | 星型/环型/网状/层级拓扑 + 成本控制 |
+| 07 | [CrewAI 对比](workflow-lessons/07_crewai_comparison/) | 角色驱动声明式编排，对比 LangGraph supervisor |
+| 08 | [AutoGen 对比](workflow-lessons/08_autogen_comparison/) | 对话驱动群聊编排，对比 LangGraph swarm |
+| 09 | [毕业项目：多智能体研究系统](workflow-lessons/09_capstone/) | supervisor + 并行 + 共享态 + 多模型综合（简历级） |
+
+> 🚧 进行中。每课继续做「手写 Agent L08 流水线 vs 框架多智能体版」并排对比。
+
+---
+
 ## 🚀 快速开始（5 步）
 
 ```bash
@@ -109,15 +131,16 @@ python rag-lessons/01_getting_started/code.py
 
 ```
 RAG-test/
-├── README.md                  ← 你在这里：三门课程总览
-├── requirements.txt           ← 依赖（三门课统一）
+├── README.md                  ← 你在这里：四门课程总览
+├── requirements.txt           ← 依赖（四门课统一）
 ├── .env.example               ← API Key 配置模板
-├── data/sample_docs/          ← 练习用的示例文档（三门课共用）
+├── data/sample_docs/          ← 练习用的示例文档（四门课共用）
 ├── rag-lessons/               ← 课程一：RAG 手写（9 课，已完成）
 ├── agent-lessons/             ← 课程二：Agent 手写（9 课，已完成）
 ├── framework-lessons/         ← 课程三：框架进阶（9 课，已完成）
-│   └── 01_lcel_overview/
-│       ├── README.md          ← 原理 + 映射对比
+├── workflow-lessons/          ← 课程四：工作流与多智能体编排（进行中）
+│   └── 01_supervisor_pattern/
+│       ├── README.md          ← 架构原理 + 映射对比
 │       ├── code.py            ← 可运行代码
 │       └── exercise.md        ← 练习
 └── docs/                      ← 设计文档与实现计划
