@@ -16,7 +16,7 @@
 | 📘 [RAG 手写课程](rag-lessons/) | 从零系统理解 RAG 原理（embedding→检索→切块→prompt→混合检索→改写→评估→工程化）| ✅ 9/9 完成 |
 | 🤖 [Agent 手写课程](agent-lessons/) | 从零系统理解 AI Agent 原理（Function Calling→ReAct→工具设计→记忆→规划→Agentic RAG→多智能体→毕业项目）| ✅ 9/9 完成 |
 | 🔧 [框架进阶课程](framework-lessons/) | LangChain + LangGraph 工程化（把手写原理翻译成框架，每课做"手写版 vs 框架版"对比）| ✅ 9/9 完成 |
-| 🔀 [工作流与多智能体编排](workflow-lessons/) | 多 Agent 协作架构（supervisor/swarm/子图/并行/共享态/多模型，三框架横向对比）| 🚧 8/9 进行中 |
+| 🔀 [工作流与多智能体编排](workflow-lessons/) | 多 Agent 协作架构（supervisor/swarm/子图/并行/共享态/多模型，三框架横向对比）| ✅ 9/9 完成 |
 
 > **学习路径**：先学 RAG（懂检索原理）→ 再学 Agent（懂自主决策）→ 再学框架进阶（工程化落地）→ 最后学多智能体编排（架构师进阶）。
 
@@ -99,7 +99,7 @@
 | 08 | [AutoGen 对比](workflow-lessons/08_autogen_comparison/) | 对话驱动群聊编排，对比 LangGraph swarm |
 | 09 | [毕业项目：多智能体研究系统](workflow-lessons/09_capstone/) | supervisor + 并行 + 共享态 + 多模型综合（简历级） |
 
-> 🚧 进行中。每课继续做「手写 Agent L08 流水线 vs 框架多智能体版」并排对比。
+> 已完成全部 **9 节课** 🎉。每课继续做「手写 Agent L08 流水线 vs 框架多智能体版」并排对比。L09 毕业项目综合 L01-L08 全部技术，是简历级作品。
 
 ---
 
