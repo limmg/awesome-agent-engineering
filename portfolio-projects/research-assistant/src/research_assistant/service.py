@@ -1,0 +1,169 @@
+"""服务层：把 LangGraph 图的执行封装成可调用的服务。
+
+提供两种入口：
+    - invoke(topic, thread_id)：同步式（实际 async），返回最终 state（CLI / 简单调用用）
+    - stream_research(topic, thread_id)：异步生成器，yield SSE 事件 dict（FastAPI 用）
+
+SSE 事件协议（双层流，阶段 3 核心）：
+    {event: "progress", data: {node, ...delta}}   —— 节点级进度（updates 模式）
+    {event: "token",    data: {node, content}}    —— writer LLM 逐 token（messages 模式）
+    {event: "done",     data: {report, findings, review}} —— 最终报告
+    {event: "error",    data: {message}}          —— 异常
+
+设计决策（写进 README）：
+    - 双层流 = 进度事件（updates）+ token 流（messages），
+      单次 astream 多模式同时产出，前端既能显示"研究子题中..."又能让报告逐字流出。
+    - writer 在父图顶层（不在嵌套子图），token 流可靠（规避 langgraph#6105
+      的嵌套子图事件传播问题）。
+"""
+from __future__ import annotations
+
+import json
+from typing import AsyncIterator
+
+from langchain_core.messages import AIMessage
+
+from .config import settings
+from .graph import build_research_subgraph, build_system
+from .models import make_fast_llm, make_smart_llm
+from .persist import get_async_saver_context
+
+
+def _initial_state(topic: str) -> dict:
+    """构造一次新研究的输入 State。"""
+    return {
+        "messages": [{"role": "user", "content": topic}],
+        "findings": [],
+        "research_summary": "",
+        "report": "",
+        "review_decision": "",
+        "rewrite_count": 0,
+        "feedback": "",
+    }
+
+
+async def invoke(topic: str, thread_id: str) -> dict:
+    """跑一次完整研究，返回最终 state（含 report/findings/review）。
+
+    供不需要流式的场景用（如内部调用、测试）。
+    """
+    fast_llm = make_fast_llm()
+    smart_llm = make_smart_llm()
+    sub = build_research_subgraph(fast_llm, smart_llm)
+
+    async with get_async_saver_context() as saver:
+        system = build_system(smart_llm, fast_llm, sub, checkpointer=saver)
+        config = {"configurable": {"thread_id": thread_id}}
+        result = await system.ainvoke(_initial_state(topic), config=config)
+        # 剥掉不可序列化的对象（messages 里的 AIMessage 转文本）
+        return _serialize_state(result)
+
+
+async def stream_research(topic: str, thread_id: str) -> AsyncIterator[dict]:
+    """异步生成器：yield SSE 事件 dict。
+
+    用法（FastAPI）：
+        async def gen(): async for ev in stream_research(topic, tid): yield ev
+        return EventSourceResponse(gen())
+
+    事件类型见模块 docstring。
+    """
+    fast_llm = make_fast_llm()
+    smart_llm = make_smart_llm()
+    sub = build_research_subgraph(fast_llm, smart_llm)
+
+    try:
+        async with get_async_saver_context() as saver:
+            system = build_system(smart_llm, fast_llm, sub, checkpointer=saver)
+            config = {"configurable": {"thread_id": thread_id}}
+
+            final_state: dict = {}
+
+            # ⭐ 双模式流：updates（节点进度）+ messages（token 流）
+            async for mode, payload in system.astream(
+                _initial_state(topic), config=config,
+                stream_mode=["updates", "messages"],
+            ):
+                if mode == "updates":
+                    # payload = {node_name: state_delta}
+                    for node, delta in payload.items():
+                        if not isinstance(delta, dict):
+                            continue
+                        # 进度事件：告诉前端哪个节点完成了什么
+                        progress = _summarize_update(node, delta)
+                        yield {"event": "progress", "data": json.dumps(progress, ensure_ascii=False)}
+                        # 累积最终 state（最后一次 writer 的 report 就是最终报告）
+                        final_state.update(delta)
+
+                elif mode == "messages":
+                    # payload = (message_chunk, metadata)
+                    msg_chunk, meta = payload
+                    content = msg_chunk.content if hasattr(msg_chunk, "content") else str(msg_chunk)
+                    if content:  # 空 chunk 跳过
+                        node = meta.get("langgraph_node", "?") if isinstance(meta, dict) else "?"
+                        yield {
+                            "event": "token",
+                            "data": json.dumps({"node": node, "content": content}, ensure_ascii=False),
+                        }
+
+            # 最终报告事件
+            yield {
+                "event": "done",
+                "data": json.dumps({
+                    "report": final_state.get("report", ""),
+                    "findings": final_state.get("findings", []),
+                    "review_decision": final_state.get("review_decision", ""),
+                    "rewrite_count": final_state.get("rewrite_count", 0),
+                }, ensure_ascii=False),
+            }
+
+    except Exception as e:
+        yield {
+            "event": "error",
+            "data": json.dumps(
+                {"message": f"{type(e).__name__}: {e}"}, ensure_ascii=False
+            ),
+        }
+
+
+# ── 辅助：把节点 delta 摘要成前端友好的进度信息 ──────────────
+_NODE_LABELS = {
+    "research_team": "并行研究",
+    "writer": "撰写报告",
+    "reviewer": "审稿",
+    "split": "拆解子题",
+    "researcher": "并行检索",
+    "summarize": "汇总发现",
+}
+
+
+def _summarize_update(node: str, delta: dict) -> dict:
+    """把节点 state delta 摘要成前端可读的进度事件。"""
+    info = {"node": node, "label": _NODE_LABELS.get(node, node)}
+    if node == "research_team" and "research_summary" in delta:
+        info["status"] = "研究完成，开始撰写"
+        info["findings_count"] = len(delta.get("findings", []))
+    elif node == "writer" and "report" in delta:
+        info["status"] = f"报告已生成（{len(delta.get('report', ''))} 字）"
+    elif node == "reviewer":
+        info["status"] = f"审稿：{delta.get('review_decision', '?')}"
+        info["rewrite_count"] = delta.get("rewrite_count", 0)
+    else:
+        info["status"] = "完成"
+        info["keys"] = list(delta.keys())
+    return info
+
+
+def _serialize_state(state: dict) -> dict:
+    """把 state 里不可 JSON 序列化的对象（AIMessage 等）转成纯文本。"""
+    out = {}
+    for k, v in state.items():
+        if k == "messages":
+            out[k] = [
+                {"role": "assistant" if isinstance(m, AIMessage) else "user",
+                 "content": m.content if hasattr(m, "content") else str(m)}
+                for m in v
+            ]
+        else:
+            out[k] = v
+    return out
