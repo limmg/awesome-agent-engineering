@@ -5,6 +5,7 @@ __pycache__/
 *.pyc
 .pytest_cache/
 eval/review_queue.jsonl
+eval/attack_report.json
 
 # 环境
 .env
