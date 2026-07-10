@@ -22,6 +22,18 @@
 
 ---
 
+## 🚀 生产级作品集项目
+
+学完 36 课后，把所学能力缝合成**真正可上生产的 AI 应用**：
+
+| 项目 | 内容 | 状态 |
+|------|------|------|
+| 🔬 [AI 研究分析助手](portfolio-projects/research-assistant/) | 多智能体并行研究系统：真实联网搜索 + 审稿回路 + 多模型降本 + SSE 流式 + SqliteSaver 持久化 + FastAPI 服务化 + Docker 部署。由 workflow L09 教学原型演进，补齐 8 个生产缺口。| ✅ 完成 |
+
+> 这是课程能力的**生产级落地**——不是 demo，是能直接部署、能扛真实流量的 AI 应用服务。
+
+---
+
 ## 📚 课程一：RAG 手写课程（共 9 节课）
 
 按 RAG 真实数据流顺序，每课加一个环节：
@@ -131,20 +143,21 @@ python rag-lessons/01_getting_started/code.py
 
 ```
 RAG-test/
-├── README.md                  ← 你在这里：四门课程总览
+├── README.md                  ← 你在这里：四门课程 + 作品集项目总览
 ├── requirements.txt           ← 依赖（四门课统一）
 ├── .env.example               ← API Key 配置模板
 ├── data/sample_docs/          ← 练习用的示例文档（四门课共用）
 ├── rag-lessons/               ← 课程一：RAG 手写（9 课，已完成）
 ├── agent-lessons/             ← 课程二：Agent 手写（9 课，已完成）
 ├── framework-lessons/         ← 课程三：框架进阶（9 课，已完成）
-├── workflow-lessons/          ← 课程四：工作流与多智能体编排（进行中）
-│   └── 01_supervisor_pattern/
-│       ├── README.md          ← 架构原理 + 映射对比
-│       ├── code.py            ← 可运行代码
-│       └── exercise.md        ← 练习
+├── workflow-lessons/          ← 课程四：工作流与多智能体编排（9 课，已完成）
+├── portfolio-projects/        ← 🚀 生产级作品集项目（学完课程后的落地）
+│   └── research-assistant/    ←   AI 研究分析助手（多智能体 + FastAPI + Docker）
 └── docs/                      ← 设计文档与实现计划
 ```
+
+每节课固定三件套：**①原理 README（讲 why 和取舍）+ ②可运行 code.py（带详细中文注释）+ ③练习**。
+作品集项目则是**模块化工程结构**（src/ + api/ + tests/ + Docker），按生产标准组织。
 
 每节课固定三件套：**①原理 README（讲 why 和取舍）+ ②可运行 code.py（带详细中文注释）+ ③练习**。
 
@@ -155,3 +168,8 @@ RAG-test/
 - **一定要跑代码**，不要只看。RAG 的很多直觉来自亲手改参数、看输出变化。
 - 按顺序学，每课建立在前一课之上。
 - 卡住了随时问我（你的 AI 助手），把报错贴给我。
+
+---
+
+感谢：
+ Linux.do佬友支持: https://linux.do/
