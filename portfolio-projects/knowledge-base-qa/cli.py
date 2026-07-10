@@ -52,6 +52,39 @@ def cmd_query(args: argparse.Namespace) -> None:
         print(f"    {preview}...\n")
 
 
+def _print_docs(docs, show_score_key: str | None = None) -> None:
+    for i, doc in enumerate(docs, 1):
+        src = doc.metadata.get("source", "?")
+        section = doc.metadata.get("section", "")
+        loc = f"{src}::{section}" if section else src
+        score = ""
+        if show_score_key and show_score_key in doc.metadata:
+            score = f"  {show_score_key}={doc.metadata[show_score_key]:.4f}"
+        preview = doc.page_content.replace("\n", " ")[:70]
+        print(f"[{i}]{score}  {loc}")
+        print(f"    {preview}...")
+
+
+def cmd_retrieve(args: argparse.Namespace) -> None:
+    from kb_qa.retriever import KBRetriever
+
+    kb = KBRetriever()
+    docs = kb.retrieve(args.question, mode=args.mode)
+    print(f"🔎 「{args.question}」 mode={args.mode}，{len(docs)} 条：\n")
+    _print_docs(docs, show_score_key="rerank_score" if args.mode == "rerank" else None)
+
+
+def cmd_compare(args: argparse.Namespace) -> None:
+    """三种检索模式并排对比（阶段 2 验证：肉眼看 rerank 是否把最相关的顶上来）。"""
+    from kb_qa.retriever import KBRetriever
+
+    kb = KBRetriever()
+    for mode in KBRetriever.MODES:
+        print(f"\n{'=' * 60}\n▶ mode = {mode}\n{'=' * 60}")
+        docs = kb.retrieve(args.question, mode=mode)
+        _print_docs(docs, show_score_key="rerank_score" if mode == "rerank" else None)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="企业知识库问答系统 CLI")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -60,10 +93,22 @@ def main() -> None:
     p_ingest.add_argument("--no-prune", action="store_true", help="不清理已删除文件的孤儿块")
     p_ingest.set_defaults(func=cmd_ingest)
 
-    p_query = sub.add_parser("query", help="向量召回验证")
+    p_query = sub.add_parser("query", help="裸向量召回验证（阶段 1）")
     p_query.add_argument("question", help="查询问题")
     p_query.add_argument("-k", type=int, default=4, help="召回条数（默认 4）")
     p_query.set_defaults(func=cmd_query)
+
+    p_retrieve = sub.add_parser("retrieve", help="检索层完整管线（阶段 2）")
+    p_retrieve.add_argument("question", help="查询问题")
+    p_retrieve.add_argument(
+        "--mode", choices=["vector", "hybrid", "rerank"], default="rerank",
+        help="检索模式（默认 rerank 完整管线）",
+    )
+    p_retrieve.set_defaults(func=cmd_retrieve)
+
+    p_compare = sub.add_parser("compare", help="三种检索模式并排对比")
+    p_compare.add_argument("question", help="查询问题")
+    p_compare.set_defaults(func=cmd_compare)
 
     args = parser.parse_args()
     args.func(args)
