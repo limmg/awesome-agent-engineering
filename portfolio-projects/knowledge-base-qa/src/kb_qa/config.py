@@ -70,6 +70,12 @@ class Settings(BaseSettings):
     sqlite_db_path: str = str(PROJECT_ROOT / "kb_qa.db")
     upload_max_mb: int = 5               # 上传文档大小上限
 
+    # ── 可观测性（LLMOps L01）────────────────────────────────────
+    # log_json=True 生产用（机器可消费的 JSON 行）；False 开发期看人类可读文本。
+    # log_level 调到 DEBUG 可看检索分词/中间状态（默认 INFO 只打关键业务节点）。
+    log_json: bool = True
+    log_level: str = "INFO"
+
 
 @lru_cache
 def get_settings() -> Settings:

@@ -22,14 +22,19 @@ _ROOT = Path(__file__).resolve().parents[1]
 if str(_ROOT / "src") not in sys.path:
     sys.path.insert(0, str(_ROOT / "src"))
 
-from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi import FastAPI, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from sse_starlette.sse import EventSourceResponse
 
 from kb_qa.config import settings
 from kb_qa.ingest import get_vectorstore, ingest_directory
+from kb_qa.observability import get_logger, setup_logging
 from kb_qa.service import reset_kb, stream_ask
+
+# 进程启动即初始化结构化日志（LLMOps L01）。
+setup_logging()
+_log = get_logger("kb_qa.api")
 
 from .schemas import AskRequest, HealthResponse, UploadResponse
 
@@ -84,18 +89,22 @@ async def upload(file: UploadFile) -> UploadResponse:
 
 
 @app.post("/api/ask")
-async def ask(req: AskRequest):
+async def ask(req: AskRequest, request: Request):
     """SSE 流式问答。事件：progress / sources / token / done / error。"""
     thread_id = req.thread_id or f"web-{uuid.uuid4().hex[:8]}"
+    # 每次问答一个 trace_id：透传给 service 贯穿日志，并回吐响应头方便排障。
+    # 优先用客户端传入的 X-Trace-Id（便于跨服务串联），否则生成新的。
+    trace_id = request.headers.get("X-Trace-Id") or uuid.uuid4().hex[:8]
 
     async def event_generator():
         try:
-            async for event in stream_ask(req.question, thread_id, req.mode):
+            async for event in stream_ask(req.question, thread_id, req.mode, trace_id=trace_id):
                 yield event
         except Exception as e:
             yield {"event": "error", "data": json.dumps({"message": str(e)}, ensure_ascii=False)}
 
-    return EventSourceResponse(event_generator())
+    # X-Trace-Id 回吐：调用方拿到后可去日志里按 id 还原本次链路。
+    return EventSourceResponse(event_generator(), headers={"X-Trace-Id": trace_id})
 
 
 @app.get("/")
