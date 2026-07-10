@@ -76,6 +76,14 @@ class Settings(BaseSettings):
     log_json: bool = True
     log_level: str = "INFO"
 
+    # ── 全链路追踪（LLMOps L02 · Langfuse）──────────────────────
+    # 全空/关闭 → 自动降级为 ConsoleTracer（打印 trace 树到 stderr，不依赖任何服务）。
+    # 启用条件：langfuse_enabled=true + host/public_key/secret_key 三项都配 + 装了 langfuse 包。
+    langfuse_enabled: bool = False
+    langfuse_host: str = ""            # 例：http://localhost:3000（自部署）
+    langfuse_public_key: str = ""      # 面板建项目后获得
+    langfuse_secret_key: str = ""
+
 
 @lru_cache
 def get_settings() -> Settings:

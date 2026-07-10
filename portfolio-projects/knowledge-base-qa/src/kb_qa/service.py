@@ -18,6 +18,7 @@ from .generate import condense_question, stream_answer
 from .history import ChatHistory
 from .observability import estimate_tokens, get_logger, log_event, new_trace_id, set_trace_id
 from .retriever import KBRetriever
+from .tracing import start_trace, trace_generation, trace_span
 
 # 服务级 logger：问答流程的关键事件都从这儿打（带 trace_id 贯穿）。
 _log = get_logger("kb_qa.service")
@@ -66,58 +67,72 @@ async def stream_ask(
     history = ChatHistory()
     past = history.get(thread_id)
 
-    # 追问改写：有历史时把问题补全成独立问题再检索
-    search_query = question
-    if past:
-        yield _event("progress", {"stage": "condense", "detail": "改写追问为独立问题"})
+    # 开一个 trace 贯穿整次问答（LLMOps L02）：
+    #   - 配了 Langfuse → 上报面板，可视化每一步耗时/输入输出/成本
+    #   - 没配 → 降级打印 trace 树到 stderr，等价可观测
+    with start_trace("kb_qa.ask", question=question, thread_id=thread_id,
+                     trace_id=tid, mode=mode or "default"):
+        # 追问改写：有历史时把问题补全成独立问题再检索
+        search_query = question
+        if past:
+            yield _event("progress", {"stage": "condense", "detail": "改写追问为独立问题"})
+            t0 = time.perf_counter()
+            with trace_generation("condense", model=settings.rewrite_model) as g:
+                search_query = await condense_question(question, past)
+                g.usage = {"input": estimate_tokens(question), "output": estimate_tokens(search_query), "unit": "TOKENS"}
+            log_event(
+                _log, "condense.done",
+                duration_ms=round((time.perf_counter() - t0) * 1000),
+                rewritten=search_query[:80],
+            )
+
+        yield _event("progress", {"stage": "retrieve", "detail": f"混合检索中（mode={mode or 'default'}）"})
         t0 = time.perf_counter()
-        search_query = await condense_question(question, past)
+        with trace_span("retrieve", query=search_query) as rspan:
+            kb = await get_kb()
+            docs = await asyncio.to_thread(kb.retrieve, search_query, mode)
+            rspan.output = f"{len(docs)} 条材料"
+            rspan.metadata["hits"] = len(docs)
         log_event(
-            _log, "condense.done",
+            _log, "retrieve.done",
+            hits=len(docs),
+            mode=mode or ("rerank" if settings.enable_rerank else "hybrid"),
             duration_ms=round((time.perf_counter() - t0) * 1000),
-            rewritten=search_query[:80],
         )
 
-    yield _event("progress", {"stage": "retrieve", "detail": f"混合检索中（mode={mode or 'default'}）"})
-    t0 = time.perf_counter()
-    kb = await get_kb()
-    docs = await asyncio.to_thread(kb.retrieve, search_query, mode)
-    log_event(
-        _log, "retrieve.done",
-        hits=len(docs),
-        mode=mode or ("rerank" if settings.enable_rerank else "hybrid"),
-        duration_ms=round((time.perf_counter() - t0) * 1000),
-    )
+        yield _event(
+            "sources",
+            [
+                {
+                    "idx": i,
+                    "source": d.metadata.get("source", "?"),
+                    "section": d.metadata.get("section", ""),
+                    "preview": d.page_content[:120],
+                }
+                for i, d in enumerate(docs, 1)
+            ],
+        )
 
-    yield _event(
-        "sources",
-        [
-            {
-                "idx": i,
-                "source": d.metadata.get("source", "?"),
-                "section": d.metadata.get("section", ""),
-                "preview": d.page_content[:120],
-            }
-            for i, d in enumerate(docs, 1)
-        ],
-    )
+        t0 = time.perf_counter()
+        with trace_generation("answer", model=settings.answer_model) as gen:
+            answer_parts: list[str] = []
+            async for token in stream_answer(question, docs, past):
+                answer_parts.append(token)
+                yield _event("token", {"content": token})
+            answer = "".join(answer_parts)
+            gen.output = answer[:500]  # 截断避免 trace 过大
+            gen.usage = {"input": sum(estimate_tokens(d.page_content) for d in docs) + estimate_tokens(question),
+                         "output": estimate_tokens(answer), "unit": "TOKENS"}
 
-    t0 = time.perf_counter()
-    answer_parts: list[str] = []
-    async for token in stream_answer(question, docs, past):
-        answer_parts.append(token)
-        yield _event("token", {"content": token})
+        history.append(thread_id, "human", question)
+        history.append(thread_id, "ai", answer)
 
-    answer = "".join(answer_parts)
-    history.append(thread_id, "human", question)
-    history.append(thread_id, "ai", answer)
-
-    log_event(
-        _log, "generate.done",
-        tokens=estimate_tokens(answer),
-        duration_ms=round((time.perf_counter() - t0) * 1000),
-        chars=len(answer),
-    )
+        log_event(
+            _log, "generate.done",
+            tokens=estimate_tokens(answer),
+            duration_ms=round((time.perf_counter() - t0) * 1000),
+            chars=len(answer),
+        )
 
     yield _event(
         "done",

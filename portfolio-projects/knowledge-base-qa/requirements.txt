@@ -31,3 +31,8 @@ python-dotenv>=1.0.0
 # ── 测试（阶段 5）─────────────────────────────────────────
 pytest>=7.0.0
 pytest-asyncio>=0.21.0
+
+# ── 可观测性（LLMOps L02，可选）─────────────────────────────
+# langfuse 可选：装了且配了 LANGFUSE_* 环境变量才启用面板上报；
+# 不装则降级为 ConsoleTracer（打印 trace 树到 stderr），不影响运行。
+langfuse>=3.0.0
