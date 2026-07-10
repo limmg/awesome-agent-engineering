@@ -24,6 +24,9 @@
   .msg.user { align-self: flex-end; background: #dbeafe; }
   .msg.bot  { align-self: flex-start; background: #fff; border: 1px solid #e1e4e8; }
   .msg.bot .cite { color: #1a7f37; font-weight: 600; }
+  .msg.bot .fb { margin-top: 8px; display: flex; gap: 6px; }
+  .msg.bot .fb button { font-size: 12px; padding: 2px 8px; }
+  .msg.bot .fb button.active { background: #0969da; color: #fff; border-color: #0969da; }
   #sources { width: 320px; border-left: 1px solid #e1e4e8; background: #fff;
              padding: 16px; overflow-y: auto; }
   #sources h2 { font-size: 13px; color: #656d76; margin-bottom: 10px; }
@@ -152,9 +155,40 @@ function handleEvent(name, raw, botDiv) {
   } else if (name === 'token') {
     botDiv.textContent += data.content;
     chat.scrollTop = chat.scrollHeight;
+  } else if (name === 'done') {
+    // 问答完成：在答案下方挂 👍/👎 反馈按钮（线上评估信号，LLMOps L03）
+    renderFeedback(botDiv, data.answer);
   } else if (name === 'error') {
     botDiv.textContent += '\n[错误] ' + data.message;
   }
+}
+
+function renderFeedback(botDiv, answer) {
+  // 从当前对话上下文取出问题（最后一条 user 消息的文本）
+  const lastUser = chat.querySelector('.msg.user:last-of-type');
+  const question = lastUser ? lastUser.textContent : '';
+  const wrap = document.createElement('div');
+  wrap.className = 'fb';
+  const up = document.createElement('button');
+  up.textContent = '👍';
+  const down = document.createElement('button');
+  down.textContent = '👎';
+  up.onclick = () => { up.classList.add('active'); sendFeedback(question, answer, 'up'); };
+  down.onclick = () => { down.classList.add('active'); sendFeedback(question, answer, 'down'); };
+  wrap.appendChild(up);
+  wrap.appendChild(down);
+  botDiv.appendChild(wrap);
+}
+
+async function sendFeedback(question, answer, rating) {
+  // 点赞/点踩上报；点踩 → 后端 100% 入 review_queue（线上坏答案待优化队列）
+  try {
+    await fetch('/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ thread_id: threadId, question, answer, rating }),
+    });
+  } catch (e) { /* 反馈失败不影响用户 */ }
 }
 
 sendBtn.addEventListener('click', ask);

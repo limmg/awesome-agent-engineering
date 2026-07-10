@@ -36,7 +36,7 @@ from kb_qa.service import reset_kb, stream_ask
 setup_logging()
 _log = get_logger("kb_qa.api")
 
-from .schemas import AskRequest, HealthResponse, UploadResponse
+from .schemas import AskRequest, FeedbackRequest, FeedbackResponse, HealthResponse, UploadResponse
 
 app = FastAPI(
     title="企业知识库问答系统",
@@ -105,6 +105,34 @@ async def ask(req: AskRequest, request: Request):
 
     # X-Trace-Id 回吐：调用方拿到后可去日志里按 id 还原本次链路。
     return EventSourceResponse(event_generator(), headers={"X-Trace-Id": trace_id})
+
+
+@app.post("/api/feedback", response_model=FeedbackResponse)
+async def feedback(req: FeedbackRequest) -> FeedbackResponse:
+    """用户反馈：点踩 → 100% 入 review_queue（线上评估的反馈信号，LLMOps L03）。
+
+    点踩是强信号，不受采样率约束、不跑 judge，直接入待优化队列。
+    点赞不入队（那是好样本）。
+    """
+    from kb_qa.online_eval import enqueue_feedback
+
+    contexts = req.contexts or []
+    enqueue_feedback(
+        question=req.question,
+        answer=req.answer,
+        contexts=contexts,
+        rating=req.rating,
+        thread_id=req.thread_id,
+    )
+    enqueued = req.rating == "down"
+    # 点踩是值得线上关注的信号 → 用 WARNING 级别记一条（点赞用 INFO）
+    import logging as _logging
+    _log.log(
+        _logging.WARNING if req.rating == "down" else _logging.INFO,
+        f"feedback rating={req.rating}",
+        extra={"event": "feedback.received", "rating": req.rating, "question": req.question[:40]},
+    )
+    return FeedbackResponse(status="ok", enqueued=enqueued)
 
 
 @app.get("/")

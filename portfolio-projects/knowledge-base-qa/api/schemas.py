@@ -25,3 +25,17 @@ class HealthResponse(BaseModel):
     answer_model: str
     enable_rerank: bool
     total_chunks: int
+
+
+class FeedbackRequest(BaseModel):
+    """用户对某次问答的反馈（点赞/点踩）—— 线上评估的反馈信号（LLMOps L03）。"""
+    thread_id: str | None = Field(default=None, max_length=64, description="会话线程 id")
+    question: str = Field(min_length=1, max_length=2000, description="当时的问题")
+    answer: str = Field(min_length=0, max_length=8000, description="当时的答案")
+    rating: str = Field(pattern="^(up|down)$", description="up=点赞 down=点踩")
+    contexts: list[str] | None = Field(default=None, description="当时召回的材料（可选，便于复盘）")
+
+
+class FeedbackResponse(BaseModel):
+    status: str = "ok"
+    enqueued: bool = Field(description="是否入队（点踩=True 入队，点赞=False）")

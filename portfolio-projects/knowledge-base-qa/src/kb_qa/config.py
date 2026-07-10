@@ -84,6 +84,14 @@ class Settings(BaseSettings):
     langfuse_public_key: str = ""      # 面板建项目后获得
     langfuse_secret_key: str = ""
 
+    # ── 线上评估（LLMOps L03）──────────────────────────────────
+    # 真实问答按 eval_sample_rate 抽样，异步跑 ragas（faithfulness+answer_relevancy），
+    # 任一指标低于 eval_score_threshold 即入 review_queue.jsonl 待优化。
+    # 点踩样本 100% 入队（强信号，不受采样率约束）。
+    eval_sample_rate: float = 0.05      # 生产典型 5%；内测/演示可调高到 0.3~1.0
+    eval_score_threshold: float = 0.5   # min(faithfulness,relevancy) 低于此即低分
+    eval_review_queue_path: str = str(PROJECT_ROOT / "eval" / "review_queue.jsonl")
+
 
 @lru_cache
 def get_settings() -> Settings:

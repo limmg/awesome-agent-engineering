@@ -4,6 +4,7 @@ chroma_kb/
 __pycache__/
 *.pyc
 .pytest_cache/
+eval/review_queue.jsonl
 
 # 环境
 .env

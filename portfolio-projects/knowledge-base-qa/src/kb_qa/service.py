@@ -17,6 +17,7 @@ from .config import settings
 from .generate import condense_question, stream_answer
 from .history import ChatHistory
 from .observability import estimate_tokens, get_logger, log_event, new_trace_id, set_trace_id
+from .online_eval import sample_and_evaluate
 from .retriever import KBRetriever
 from .tracing import start_trace, trace_generation, trace_span
 
@@ -144,3 +145,14 @@ async def stream_ask(
         },
     )
     log_event(_log, "request.done")
+
+    # 线上评估闭环（LLMOps L03）：done 后异步抽样评估，绝不阻塞已返回的响应。
+    # sample_and_evaluate 内部按 eval_sample_rate 决定是否真跑；低分入 review_queue。
+    # 用 create_task 派发：用户已拿到答案，评估在后台跑，失败也只打日志不影响服务。
+    asyncio.create_task(sample_and_evaluate(
+        question=question,
+        answer=answer,
+        contexts=[d.page_content for d in docs],
+        thread_id=thread_id,
+        trace_id=tid,
+    ))
