@@ -1,0 +1,33 @@
+# ── 核心框架 ──────────────────────────────────────────────
+langchain>=1.0.0
+langchain-core>=1.0.0
+langchain-community>=0.4.0          # ChatZhipuAI / ZhipuAIEmbeddings
+langchain-classic>=1.0.8            # EnsembleRetriever / MultiQueryRetriever（framework-05 的坑：必须显式声明）
+langchain-text-splitters>=1.0.0     # MarkdownHeaderTextSplitter 结构感知分块
+
+# ── 向量库 & 检索 ─────────────────────────────────────────
+langchain-chroma>=1.1.0
+chromadb>=1.0.0
+rank-bm25>=0.2.2                    # BM25Retriever 依赖
+jieba>=0.42.1                      # 中文分词（BM25 preprocess，否则中文整句变一个 token）
+
+# ── LLM ──────────────────────────────────────────────────
+zhipuai>=2.1.0                      # 智谱 API（embedding-3 / glm-4 / rerank）
+
+# ── 评估（阶段 4）─────────────────────────────────────────
+ragas>=0.4.3                        # 注意：需注入 vertexai stub，见 src/kb_qa/ragas_compat.py
+
+# ── 服务化（阶段 3）──────────────────────────────────────
+fastapi>=0.100.0
+uvicorn>=0.20.0
+sse-starlette>=1.6.0
+python-multipart>=0.0.9             # 文件上传表单解析
+
+# ── 配置 ─────────────────────────────────────────────────
+pydantic>=2.0
+pydantic-settings>=2.0
+python-dotenv>=1.0.0
+
+# ── 测试（阶段 5）─────────────────────────────────────────
+pytest>=7.0.0
+pytest-asyncio>=0.21.0

@@ -1,0 +1,31 @@
+# ── docker-compose：一键启动 + 持久化卷 + 环境变量 ─────────
+# 用法：docker compose up -d        （后台启动）
+#       docker compose logs -f      （看日志）
+#       docker compose down         （停止）
+#
+# 首次启动前：cp .env.example .env 并填入 ZHIPUAI_API_KEY
+
+services:
+  research-assistant:
+    build: .
+    image: research-assistant:latest
+    container_name: research-assistant
+    ports:
+      - "8000:8000"
+    environment:
+      # 从宿主机 .env 注入（ZHIPUAI_API_KEY 等）
+      ZHIPUAI_API_KEY: ${ZHIPUAI_API_KEY}
+      SMART_MODEL: ${SMART_MODEL:-glm-4}
+      FAST_MODEL: ${FAST_MODEL:-glm-4-flash}
+      NUM_SUBTOPICS: ${NUM_SUBTOPICS:-3}
+      MAX_REWRITES: ${MAX_REWRITES:-3}
+      MAX_CONCURRENT_SEARCH: ${MAX_CONCURRENT_SEARCH:-5}
+    volumes:
+      # sqlite db 持久化（容器重建后记忆不丢）
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

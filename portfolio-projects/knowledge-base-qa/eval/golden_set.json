@@ -1,0 +1,102 @@
+[
+  {
+    "question": "入职满 3 年不满 5 年，每年有几天年假？",
+    "ground_truth": "入职满 3 年不满 5 年的员工每年有 10 天年假。",
+    "source": "employee_handbook.md"
+  },
+  {
+    "question": "工作日加班到晚上 9 点以后，打车费最多能报销多少？",
+    "ground_truth": "工作日加班至 21:00 以后，可通过「帆票」系统报销打车费用，上限 60 元/次。",
+    "source": "employee_handbook.md"
+  },
+  {
+    "question": "今天忘打卡了还能补救吗？",
+    "ground_truth": "可以补卡，每月漏打卡可补卡 3 次，补卡申请须在 3 个工作日内提交，由直属主管审批。",
+    "source": "employee_handbook.md"
+  },
+  {
+    "question": "国内出差每天的补贴是多少？",
+    "ground_truth": "国内出差补贴 100 元/天（含餐费），按自然天计算，无需发票；出差当天往返的补贴减半按 50 元计。",
+    "source": "expense_policy.md"
+  },
+  {
+    "question": "差旅费用必须在出差结束后多长时间内提交报销？",
+    "ground_truth": "差旅费用须在出差结束后 30 天内在「帆票」系统提交报销，逾期超过 90 天的不予报销。",
+    "source": "expense_policy.md"
+  },
+  {
+    "question": "普通员工去上海出差，住酒店一晚最多能报多少钱？",
+    "ground_truth": "上海属于一线城市，普通员工住宿上限为 500 元/人/晚。",
+    "source": "expense_policy.md"
+  },
+  {
+    "question": "内部系统的密码多久要强制更换一次？",
+    "ground_truth": "密码每 90 天强制更换一次，到期前 7 天系统自动邮件提醒。",
+    "source": "it_security_policy.md"
+  },
+  {
+    "question": "连续输错密码几次账号会被锁定，锁多久？",
+    "ground_truth": "连续输错密码 5 次，账号自动锁定 30 分钟。",
+    "source": "it_security_policy.md"
+  },
+  {
+    "question": "绩效评级 S 档的比例上限和绩效系数分别是多少？",
+    "ground_truth": "S 档比例上限为 5%，绩效系数为 1.5。",
+    "source": "performance_review.md"
+  },
+  {
+    "question": "什么情况下员工会进入绩效改进计划，进入之后有哪些限制？",
+    "ground_truth": "单次考核评级为 D，或连续 2 个考核周期评级为 C 的员工自动进入 PIP；PIP 期间员工不得申请转岗、不参与晋升提名、不发放当期绩效奖金。",
+    "source": "performance_review.md"
+  },
+  {
+    "question": "发现数据泄露后必须在多长时间内上报？",
+    "ground_truth": "任何员工发现或怀疑数据泄露，必须在 30 分钟内上报信息安全部安全组（7×24 应急热线：分机 5999）。",
+    "source": "data_privacy_policy.md"
+  },
+  {
+    "question": "跨境传输 L3 及以上数据需要提前多久提交申请？",
+    "ground_truth": "任何跨境传输 L3 及以上数据的需求，必须提前 15 个工作日向法务部提交《跨境传输评估申请》。",
+    "source": "data_privacy_policy.md"
+  },
+  {
+    "question": "员工薪酬信息属于哪个数据级别，可以存在个人设备上吗？",
+    "ground_truth": "员工薪酬属于 L3 机密数据，L3 数据只能存储在公司管控的加密存储区，禁止存储在个人设备。",
+    "source": "data_privacy_policy.md"
+  },
+  {
+    "question": "企业版每个席位每月多少钱？",
+    "ground_truth": "企业版为 ¥129/席位/月，席位数不设上限。",
+    "source": "product_faq.md"
+  },
+  {
+    "question": "删除的文档还能恢复吗？能保留多久？",
+    "ground_truth": "删除的文档进入回收站，保留 30 天，期间管理员可随时恢复；超过 30 天自动彻底删除。",
+    "source": "product_faq.md"
+  },
+  {
+    "question": "免费版团队想邀请第 11 个成员该怎么办？升级后每人每月要花多少钱？",
+    "ground_truth": "免费版最多 10 个席位，超过 10 个席位时需升级到专业版才能继续邀请成员，专业版为 ¥49/席位/月。",
+    "source": "product_faq.md"
+  },
+  {
+    "question": "试用期有多长？试用期工资怎么算？",
+    "ground_truth": "全员试用期为 3 个月，试用期工资为转正工资的 80%。",
+    "source": "onboarding_guide.md"
+  },
+  {
+    "question": "带新人的导师津贴有多少？",
+    "ground_truth": "新员工顺利转正后，导师可获得 1000 元导师津贴，随次月工资发放。",
+    "source": "onboarding_guide.md"
+  },
+  {
+    "question": "客户退款金额超过 5000 元需要谁来审批？",
+    "ground_truth": "退款金额 ¥5,000 以上由客户成功部总监审批，¥50,000 以上还需财务部会签。",
+    "source": "customer_service_sop.md"
+  },
+  {
+    "question": "P0 工单的响应和解决时限是多少？如果迟迟没解决会怎么升级？",
+    "ground_truth": "P0 工单首次响应时限为 15 分钟、解决时限为 4 小时；创建后 1 小时内未有效遏制自动升级至客户成功部总监，超过 2 小时未解决升级至 CTO 并启动重大故障应急会议。",
+    "source": "customer_service_sop.md"
+  }
+]

@@ -1,0 +1,458 @@
+{
+  "n_questions": 20,
+  "results": [
+    {
+      "mode": "vector",
+      "aggregate": {
+        "faithfulness": 0.8028,
+        "answer_relevancy": 0.6058,
+        "context_precision": 0.8333,
+        "context_recall": 0.925
+      },
+      "per_question": [
+        {
+          "question": "入职满 3 年不满 5 年，每年有几天年假？",
+          "faithfulness": 0.5,
+          "answer_relevancy": 0.66541383265399,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "工作日加班到晚上 9 点以后，打车费最多能报销多少？",
+          "faithfulness": 0.3333333333333333,
+          "answer_relevancy": 0.6558673580193541,
+          "context_precision": 0.49999999995,
+          "context_recall": 1.0
+        },
+        {
+          "question": "今天忘打卡了还能补救吗？",
+          "faithfulness": 0.75,
+          "answer_relevancy": 0.568659333425699,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "国内出差每天的补贴是多少？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.5777534659286889,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "差旅费用必须在出差结束后多长时间内提交报销？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.6532293294147807,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "普通员工去上海出差，住酒店一晚最多能报多少钱？",
+          "faithfulness": 0.3333333333333333,
+          "answer_relevancy": 0.7193669095957914,
+          "context_precision": 0.49999999995,
+          "context_recall": 1.0
+        },
+        {
+          "question": "内部系统的密码多久要强制更换一次？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.7802425684873265,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "连续输错密码几次账号会被锁定，锁多久？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.6181662384699007,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "绩效评级 S 档的比例上限和绩效系数分别是多少？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.665798304678438,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "什么情况下员工会进入绩效改进计划，进入之后有哪些限制？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.7040533583803418,
+          "context_precision": 0.99999999995,
+          "context_recall": 1.0
+        },
+        {
+          "question": "发现数据泄露后必须在多长时间内上报？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.7690957852136405,
+          "context_precision": 0.8333333332916666,
+          "context_recall": 1.0
+        },
+        {
+          "question": "跨境传输 L3 及以上数据需要提前多久提交申请？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.7490386454256734,
+          "context_precision": 0.49999999995,
+          "context_recall": 1.0
+        },
+        {
+          "question": "员工薪酬信息属于哪个数据级别，可以存在个人设备上吗？",
+          "faithfulness": 0.6666666666666666,
+          "answer_relevancy": 0.0,
+          "context_precision": 0.9999999999666667,
+          "context_recall": 0.5
+        },
+        {
+          "question": "企业版每个席位每月多少钱？",
+          "faithfulness": 0.0,
+          "answer_relevancy": 0.0,
+          "context_precision": 0.0,
+          "context_recall": 0.0
+        },
+        {
+          "question": "删除的文档还能恢复吗？能保留多久？",
+          "faithfulness": 0.8333333333333334,
+          "answer_relevancy": 0.762787322956842,
+          "context_precision": 0.99999999995,
+          "context_recall": 1.0
+        },
+        {
+          "question": "免费版团队想邀请第 11 个成员该怎么办？升级后每人每月要花多少钱？",
+          "faithfulness": 0.75,
+          "answer_relevancy": 0.7016868697067222,
+          "context_precision": 0.999999999975,
+          "context_recall": 1.0
+        },
+        {
+          "question": "试用期有多长？试用期工资怎么算？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.5832658419890127,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "带新人的导师津贴有多少？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.6178814022416331,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "客户退款金额超过 5000 元需要谁来审批？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.6816009271379286,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "P0 工单的响应和解决时限是多少？如果迟迟没解决会怎么升级？",
+          "faithfulness": 0.8888888888888888,
+          "answer_relevancy": 0.6429320935074769,
+          "context_precision": 0.3333333333,
+          "context_recall": 1.0
+        }
+      ]
+    },
+    {
+      "mode": "hybrid",
+      "aggregate": {
+        "faithfulness": 0.7488,
+        "answer_relevancy": 0.6431,
+        "context_precision": 0.8796,
+        "context_recall": 0.9
+      },
+      "per_question": [
+        {
+          "question": "入职满 3 年不满 5 年，每年有几天年假？",
+          "faithfulness": 0.5,
+          "answer_relevancy": 0.6621779464757825,
+          "context_precision": NaN,
+          "context_recall": 1.0
+        },
+        {
+          "question": "工作日加班到晚上 9 点以后，打车费最多能报销多少？",
+          "faithfulness": 0.8,
+          "answer_relevancy": 0.9752818379912469,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "今天忘打卡了还能补救吗？",
+          "faithfulness": 0.75,
+          "answer_relevancy": 0.8329648174557956,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "国内出差每天的补贴是多少？",
+          "faithfulness": 0.8,
+          "answer_relevancy": 0.5777104583078159,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "差旅费用必须在出差结束后多长时间内提交报销？",
+          "faithfulness": 0.5,
+          "answer_relevancy": 0.7005817569399717,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "普通员工去上海出差，住酒店一晚最多能报多少钱？",
+          "faithfulness": 0.6666666666666666,
+          "answer_relevancy": 0.7231051788821762,
+          "context_precision": 0.49999999995,
+          "context_recall": 1.0
+        },
+        {
+          "question": "内部系统的密码多久要强制更换一次？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.7790168098868668,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "连续输错密码几次账号会被锁定，锁多久？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.6503139337520653,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "绩效评级 S 档的比例上限和绩效系数分别是多少？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.7374751726941923,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "什么情况下员工会进入绩效改进计划，进入之后有哪些限制？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.7005878853126096,
+          "context_precision": 0.9999999999,
+          "context_recall": 0.5
+        },
+        {
+          "question": "发现数据泄露后必须在多长时间内上报？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.773243580485806,
+          "context_precision": 0.99999999995,
+          "context_recall": 1.0
+        },
+        {
+          "question": "跨境传输 L3 及以上数据需要提前多久提交申请？",
+          "faithfulness": 0.5,
+          "answer_relevancy": 0.7556112945841358,
+          "context_precision": 0.49999999995,
+          "context_recall": 1.0
+        },
+        {
+          "question": "员工薪酬信息属于哪个数据级别，可以存在个人设备上吗？",
+          "faithfulness": 0.0,
+          "answer_relevancy": 0.0,
+          "context_precision": 0.8333333332916666,
+          "context_recall": 0.5
+        },
+        {
+          "question": "企业版每个席位每月多少钱？",
+          "faithfulness": 0.0,
+          "answer_relevancy": 0.0,
+          "context_precision": 0.0,
+          "context_recall": 0.0
+        },
+        {
+          "question": "删除的文档还能恢复吗？能保留多久？",
+          "faithfulness": 0.8333333333333334,
+          "answer_relevancy": 0.7536387074289722,
+          "context_precision": 0.99999999995,
+          "context_recall": 1.0
+        },
+        {
+          "question": "免费版团队想邀请第 11 个成员该怎么办？升级后每人每月要花多少钱？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.7272298170265422,
+          "context_precision": 0.999999999975,
+          "context_recall": 1.0
+        },
+        {
+          "question": "试用期有多长？试用期工资怎么算？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.5724723569451989,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "带新人的导师津贴有多少？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.6179198066412298,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "客户退款金额超过 5000 元需要谁来审批？",
+          "faithfulness": 0.75,
+          "answer_relevancy": 0.6842528994875305,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "P0 工单的响应和解决时限是多少？如果迟迟没解决会怎么升级？",
+          "faithfulness": 0.875,
+          "answer_relevancy": 0.6387223517590778,
+          "context_precision": NaN,
+          "context_recall": 1.0
+        }
+      ]
+    },
+    {
+      "mode": "rerank",
+      "aggregate": {
+        "faithfulness": 0.8483,
+        "answer_relevancy": 0.6524,
+        "context_precision": 0.8583,
+        "context_recall": 0.975
+      },
+      "per_question": [
+        {
+          "question": "入职满 3 年不满 5 年，每年有几天年假？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.66541383265399,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "工作日加班到晚上 9 点以后，打车费最多能报销多少？",
+          "faithfulness": 0.6666666666666666,
+          "answer_relevancy": 0.6506100163070782,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "今天忘打卡了还能补救吗？",
+          "faithfulness": 0.75,
+          "answer_relevancy": 0.8329919369050888,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "国内出差每天的补贴是多少？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.5777104583078159,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "差旅费用必须在出差结束后多长时间内提交报销？",
+          "faithfulness": 0.5,
+          "answer_relevancy": 0.6932403619000604,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "普通员工去上海出差，住酒店一晚最多能报多少钱？",
+          "faithfulness": 0.6666666666666666,
+          "answer_relevancy": 0.7232358341220729,
+          "context_precision": 0.49999999995,
+          "context_recall": 1.0
+        },
+        {
+          "question": "内部系统的密码多久要强制更换一次？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.7801279840229611,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "连续输错密码几次账号会被锁定，锁多久？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.6082509990507092,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "绩效评级 S 档的比例上限和绩效系数分别是多少？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.6766991387790499,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "什么情况下员工会进入绩效改进计划，进入之后有哪些限制？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.7038241266548105,
+          "context_precision": 0.49999999995,
+          "context_recall": 1.0
+        },
+        {
+          "question": "发现数据泄露后必须在多长时间内上报？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.6957968066847319,
+          "context_precision": 0.99999999995,
+          "context_recall": 1.0
+        },
+        {
+          "question": "跨境传输 L3 及以上数据需要提前多久提交申请？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.7568222461464934,
+          "context_precision": 0.49999999995,
+          "context_recall": 1.0
+        },
+        {
+          "question": "员工薪酬信息属于哪个数据级别，可以存在个人设备上吗？",
+          "faithfulness": 0.0,
+          "answer_relevancy": 0.0,
+          "context_precision": 0.99999999995,
+          "context_recall": 0.5
+        },
+        {
+          "question": "企业版每个席位每月多少钱？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.7699690003739205,
+          "context_precision": 0.3333333333,
+          "context_recall": 1.0
+        },
+        {
+          "question": "删除的文档还能恢复吗？能保留多久？",
+          "faithfulness": 0.8333333333333334,
+          "answer_relevancy": 0.7672111665641149,
+          "context_precision": 0.99999999995,
+          "context_recall": 1.0
+        },
+        {
+          "question": "免费版团队想邀请第 11 个成员该怎么办？升级后每人每月要花多少钱？",
+          "faithfulness": 0.75,
+          "answer_relevancy": 0.692064404076139,
+          "context_precision": 0.999999999975,
+          "context_recall": 1.0
+        },
+        {
+          "question": "试用期有多长？试用期工资怎么算？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.5703749291715398,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "带新人的导师津贴有多少？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.6178814022416331,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "客户退款金额超过 5000 元需要谁来审批？",
+          "faithfulness": 0.8,
+          "answer_relevancy": 0.6231842946643297,
+          "context_precision": 0.9999999999,
+          "context_recall": 1.0
+        },
+        {
+          "question": "P0 工单的响应和解决时限是多少？如果迟迟没解决会怎么升级？",
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.6429189646735192,
+          "context_precision": 0.3333333333,
+          "context_recall": 1.0
+        }
+      ]
+    }
+  ]
+}

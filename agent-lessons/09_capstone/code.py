@@ -39,6 +39,13 @@ def create_client() -> ZhipuAI:
 
 
 # ════════════════════════════════════════════════════════════
+# 代理配置（DuckDuckGo 国内无法直连，需要走代理）
+# 如果你有 HTTP 代理，填在下面；没有的话设置成 None 试试能不能通
+# ════════════════════════════════════════════════════════════
+PROXY = os.getenv("HTTP_PROXY") or os.getenv("HTTPS_PROXY") or None  # 如 "http://127.0.0.1:7890"
+
+
+# ════════════════════════════════════════════════════════════
 # 工具 1：联网搜索（核心工具，用 DuckDuckGo，免费无 key）
 # ════════════════════════════════════════════════════════════
 def web_search(query: str, max_results: int = 5) -> str:
@@ -47,7 +54,7 @@ def web_search(query: str, max_results: int = 5) -> str:
     错误兜底：搜索失败时返回友好提示（不崩溃），让 Agent 知道可以重试。
     """
     try:
-        ddgs = DDGS()
+        ddgs = DDGS(proxy=PROXY)
         results = list(ddgs.text(query, max_results=max_results))
         if not results:
             return f"搜索 '{query}' 没有返回结果。可以换个关键词试试。"

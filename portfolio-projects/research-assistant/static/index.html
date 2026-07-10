@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔬 AI 研究分析助手</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --panel: #1a1d27;
+      --border: #2a2e3a;
+      --text: #e4e6eb;
+      --muted: #8b909c;
+      --accent: #5b8def;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --red: #f87171;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { font-size: 1.4rem; margin-bottom: 4px; }
+    .subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 20px; }
+
+    .input-row { display: flex; gap: 8px; margin-bottom: 16px; }
+    input[type="text"] {
+      flex: 1; padding: 12px 14px; background: var(--panel);
+      border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text); font-size: 0.95rem;
+    }
+    input[type="text"]:focus { outline: none; border-color: var(--accent); }
+    button {
+      padding: 12px 20px; background: var(--accent); color: white;
+      border: none; border-radius: 8px; cursor: pointer; font-size: 0.95rem;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.9; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button.danger { background: var(--red); }
+
+    .progress {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px 14px; margin-bottom: 16px;
+      font-size: 0.85rem; min-height: 24px;
+    }
+    .progress-item { padding: 2px 0; }
+    .progress-item .node { color: var(--accent); font-weight: 600; }
+    .progress-item .status { color: var(--muted); }
+    .progress-item.review-pass .status { color: var(--green); }
+    .progress-item.review-rework .status { color: var(--amber); }
+
+    .report {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 8px; padding: 20px; line-height: 1.7;
+      white-space: pre-wrap; word-wrap: break-word; min-height: 60px;
+    }
+    .report.placeholder { color: var(--muted); font-style: italic; }
+
+    .findings { margin-top: 16px; }
+    .findings summary {
+      cursor: pointer; color: var(--accent); font-size: 0.9rem;
+      padding: 8px 0;
+    }
+    .finding {
+      background: var(--panel); border-left: 3px solid var(--accent);
+      padding: 10px 14px; margin: 8px 0; border-radius: 4px;
+      font-size: 0.85rem; white-space: pre-wrap;
+    }
+
+    .error {
+      background: #3a1515; border: 1px solid var(--red); color: var(--red);
+      padding: 12px 14px; border-radius: 8px; margin: 12px 0;
+      font-size: 0.85rem;
+    }
+    .blink::after { content: "▋"; animation: blink 1s infinite; color: var(--accent); }
+    @keyframes blink { 50% { opacity: 0; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔬 AI 研究分析助手</h1>
+    <div class="subtitle">多智能体并行研究 · 真实联网 · 审稿迭代 · 流式输出</div>
+
+    <div class="input-row">
+      <input type="text" id="topic" placeholder="输入研究主题，如：2024 年 AI Agent 技术的重要进展" value="2024 年 AI Agent 技术的重要进展">
+      <button id="submit" onclick="startResearch()">开始研究</button>
+      <button id="cancel" class="danger" onclick="cancelResearch()" style="display:none;">中断</button>
+    </div>
+
+    <div id="progress" class="progress" style="display:none;"></div>
+    <div id="report" class="report placeholder">报告将在此处逐字流出...</div>
+    <details id="findings" class="findings" style="display:none;">
+      <summary>📊 并行研究发现（点击展开）</summary>
+      <div id="findings-list"></div>
+    </details>
+  </div>
+
+<script>
+  let controller = null;
+
+  async function startResearch() {
+    const topic = document.getElementById('topic').value.trim();
+    if (!topic) { alert('请输入研究主题'); return; }
+
+    // 重置 UI
+    const progEl = document.getElementById('progress');
+    const reportEl = document.getElementById('report');
+    const findEl = document.getElementById('findings');
+    progEl.innerHTML = '';
+    progEl.style.display = 'block';
+    reportEl.textContent = '';
+    reportEl.className = 'report';
+    reportEl.classList.add('blink');
+    findEl.style.display = 'none';
+    document.getElementById('findings-list').innerHTML = '';
+
+    document.getElementById('submit').disabled = true;
+    document.getElementById('cancel').style.display = 'inline-block';
+
+    controller = new AbortController();
+
+    try {
+      const resp = await fetch('/api/research', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic }),
+        signal: controller.signal,
+      });
+
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        // SSE 事件以空行分隔，逐个解析
+        const events = buffer.split('\n\n');
+        buffer = events.pop(); // 最后一段可能不完整
+
+        for (const raw of events) {
+          if (!raw.trim()) continue;
+          const ev = parseSSE(raw);
+          if (ev) handleEvent(ev);
+        }
+      }
+    } catch (e) {
+      if (e.name !== 'AbortError') {
+        showError(e.message);
+      }
+    } finally {
+      reportEl.classList.remove('blink');
+      document.getElementById('submit').disabled = false;
+      document.getElementById('cancel').style.display = 'none';
+      controller = null;
+    }
+  }
+
+  function parseSSE(raw) {
+    // SSE 格式：event: xxx\ndata: {...}
+    let event = 'message';
+    let data = '';
+    for (const line of raw.split('\n')) {
+      if (line.startsWith('event:')) event = line.slice(6).trim();
+      else if (line.startsWith('data:')) data += line.slice(5).trim();
+    }
+    try { return { event, data: JSON.parse(data) }; }
+    catch { return null; }
+  }
+
+  function handleEvent(ev) {
+    const progEl = document.getElementById('progress');
+    const reportEl = document.getElementById('report');
+
+    if (ev.event === 'progress') {
+      const item = document.createElement('div');
+      item.className = 'progress-item';
+      if (ev.data.review_decision === 'rework' || (ev.data.status || '').includes('rework')) {
+        item.classList.add('review-rework');
+      } else if ((ev.data.status || '').includes('pass') || (ev.data.status || '').includes('合格')) {
+        item.classList.add('review-pass');
+      }
+      item.innerHTML = `<span class="node">[${ev.data.label || ev.data.node}]</span> <span class="status">${ev.data.status || ''}</span>`;
+      progEl.appendChild(item);
+    } else if (ev.event === 'token') {
+      // 只渲染 writer 的 token（reviewer 的 '合格' 等不进报告区）
+      if (ev.data.node === 'writer' || ev.data.node === undefined) {
+        reportEl.classList.remove('placeholder');
+        reportEl.textContent += ev.data.content;
+      }
+    } else if (ev.event === 'done') {
+      reportEl.classList.remove('blink');
+      // 用最终报告覆盖（确保完整）
+      if (ev.data.report) {
+        reportEl.textContent = ev.data.report;
+      }
+      // 渲染研究发现
+      if (ev.data.findings && ev.data.findings.length) {
+        const findEl = document.getElementById('findings');
+        const list = document.getElementById('findings-list');
+        list.innerHTML = '';
+        ev.data.findings.forEach(f => {
+          const div = document.createElement('div');
+          div.className = 'finding';
+          div.textContent = f;
+          list.appendChild(div);
+        });
+        findEl.style.display = 'block';
+      }
+      // 审稿总结
+      const item = document.createElement('div');
+      item.className = 'progress-item review-pass';
+      item.innerHTML = `<span class="node">[完成]</span> <span class="status">审稿：${ev.data.review_decision}（重写 ${ev.data.rewrite_count} 次）</span>`;
+      progEl.appendChild(item);
+    } else if (ev.event === 'error') {
+      showError(ev.data.message);
+    }
+  }
+
+  function showError(msg) {
+    const err = document.createElement('div');
+    err.className = 'error';
+    err.textContent = '❌ ' + msg;
+    document.getElementById('progress').appendChild(err);
+  }
+
+  function cancelResearch() {
+    if (controller) controller.abort();
+  }
+
+  // 回车提交
+  document.getElementById('topic').addEventListener('keydown', e => {
+    if (e.key === 'Enter') startResearch();
+  });
+</script>
+</body>
+</html>
