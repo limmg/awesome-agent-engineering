@@ -203,5 +203,102 @@ def test_review_route_rework_to_writer():
     result = nodes.review_route({
         "review_decision": "rework", "rewrite_count": 1,
         "messages": [], "findings": [], "research_summary": "", "report": "", "feedback": "",
+        "conflicts": [], "re_research_count": 0, "re_research_queries": [],
     })
     assert result == "writer"
+
+
+# ── Frontier L05：双通道 reviewer + 冲突检测 ─────────────────
+def test_review_route_re_research_to_research_team():
+    """条件边：decision=re_research 且未超限 → research_team。"""
+    import research_assistant.config as config
+    config.settings.__dict__["max_re_research"] = 3
+
+    result = nodes.review_route({
+        "review_decision": "re_research", "rewrite_count": 0,
+        "messages": [], "findings": [], "research_summary": "", "report": "", "feedback": "",
+        "conflicts": ["冲突1"], "re_research_count": 1, "re_research_queries": ["验证X"],
+    })
+    assert result == "research_team"
+
+
+def test_review_route_re_research_at_limit_to_end():
+    """条件边：re_research 超限 → END（防死循环）。"""
+    from langgraph.graph import END
+    import research_assistant.config as config
+    config.settings.__dict__["max_re_research"] = 2
+
+    result = nodes.review_route({
+        "review_decision": "re_research", "rewrite_count": 0,
+        "messages": [], "findings": [], "research_summary": "", "report": "", "feedback": "",
+        "conflicts": ["冲突1"], "re_research_count": 3, "re_research_queries": ["验证X"],
+    })
+    assert result == END
+
+
+def test_check_conflicts_detects_with_llm():
+    """冲突检测：LLM 判"冲突"时应返回冲突 + 补研问题。"""
+    class ConflictLLM:
+        def invoke(self, prompt, **kw):
+            class R:
+                content = ""
+            if "只回复一个词" in prompt:
+                R.content = "冲突"
+            else:
+                R.content = "验证 MCP 到底基于什么协议"
+            return R()
+
+    class FakeMemStore:
+        def recall(self, query, k=3):
+            from research_assistant.memory import SemanticMemory
+            import time
+            return {"episodic": [], "semantic": [SemanticMemory("id", "MCP", "MCP基于gRPC", "依据", time.time(), 0.8)]}
+
+    findings = ["MCP 协议实际上基于 JSON-RPC 而非 gRPC"]
+    result = nodes.check_conflicts(findings, FakeMemStore(), ConflictLLM())
+    assert len(result["conflicts"]) > 0
+    assert len(result["queries"]) > 0
+
+
+def test_check_conflicts_no_conflict_when_consistent():
+    """冲突检测：LLM 判"一致"时不应返回冲突。"""
+    class ConsistentLLM:
+        def invoke(self, prompt, **kw):
+            class R:
+                content = "一致"
+            return R()
+
+    class FakeMemStore:
+        def recall(self, query, k=3):
+            from research_assistant.memory import SemanticMemory
+            import time
+            return {"episodic": [], "semantic": [SemanticMemory("id", "MCP", "MCP基于JSON-RPC", "依据", time.time(), 0.8)]}
+
+    findings = ["MCP 协议基于 JSON-RPC 2.0"]
+    result = nodes.check_conflicts(findings, FakeMemStore(), ConsistentLLM())
+    assert len(result["conflicts"]) == 0
+
+
+def test_check_conflicts_rule_fallback():
+    """冲突检测：无 LLM 时降级为关键词检测。"""
+    class FakeMemStore:
+        def recall(self, query, k=3):
+            from research_assistant.memory import SemanticMemory
+            import time
+            return {"episodic": [], "semantic": [SemanticMemory("id", "MCP", "旧结论", "依据", time.time(), 0.8)]}
+
+    # 含"修正"信号词 → 检测到冲突
+    findings = ["修正：MCP 实际上基于 JSON-RPC"]
+    result = nodes.check_conflicts(findings, FakeMemStore(), llm=None)
+    assert len(result["conflicts"]) > 0
+
+
+def test_check_conflicts_no_old_memory():
+    """冲突检测：无旧记忆时不检测冲突。"""
+    class FakeMemStore:
+        def recall(self, query, k=3):
+            return {"episodic": [], "semantic": []}
+
+    findings = ["一些新发现"]
+    result = nodes.check_conflicts(findings, FakeMemStore(), llm=None)
+    assert len(result["conflicts"]) == 0

@@ -52,12 +52,20 @@ def build_research_subgraph(fast_llm, smart_llm):
 def build_system(smart_llm, fast_llm, research_subgraph, checkpointer=None):
     """构建完整研究系统（父图）。
 
-    拓扑（阶段 2：加审稿回路）：
-        START → research_team(子图作节点) → writer → reviewer ─(条件)─→ END
-                                                         │              │
-                                                         └── rework ────┘→ writer(回环)
-    - reviewer 通过或 rewrite_count 达上限 → END
-    - reviewer 不通过 → 回 writer（带 feedback，rewrite_count++）
+    拓扑（Frontier L05：双通道路由）：
+        START → research_team → writer → reviewer ─(条件)─→ END
+                                                    │
+                                          ┌─────────┼──────────┐
+                                          ▼         ▼          ▼
+                                       rework  re_research    pass
+                                          │         │          │
+                                       writer   research_team  END
+                                       (重写)    (定向补研)
+
+    review_route 返回：
+        - END：通过
+        - "writer"：文字不合格 → 重写（rewrite_count++）
+        - "research_team"：事实冲突 → 定向补研（re_research_count++）
 
     Args:
         smart_llm: writer + reviewer 用（质量优先）
@@ -74,7 +82,7 @@ def build_system(smart_llm, fast_llm, research_subgraph, checkpointer=None):
     builder.add_edge(START, "research_team")
     builder.add_edge("research_team", "writer")
     builder.add_edge("writer", "reviewer")
-    # ⭐ 审稿条件边：review_route 返回 END（通过）或 "writer"（重写）
+    # ⭐ 双通道条件边：pass→END, rework→writer, re_research→research_team
     builder.add_conditional_edges("reviewer", review_route)
 
     if checkpointer is not None:

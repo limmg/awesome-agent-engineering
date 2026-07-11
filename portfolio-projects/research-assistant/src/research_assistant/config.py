@@ -99,6 +99,11 @@ class Settings(BaseSettings):
     # 默认关：不破坏现有测试；开启后 writer 产出遵循 skill 规定的格式。
     enable_skills: bool = False
 
+    # ── 反思修正（Frontier L05 · 双通道 reviewer）─────────────────
+    # reviewer 升级为双通道：文字问题→writer 重写（现状）；事实冲突→定向补研。
+    # 补研次数上限（防死循环，复用 max_rewrites 思路）
+    max_re_research: int = 2
+
     # ── 服务（阶段 3）──────────────────────────────────────────
     host: str = "0.0.0.0"
     port: int = 8000

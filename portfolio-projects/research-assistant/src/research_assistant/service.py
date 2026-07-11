@@ -42,6 +42,10 @@ def _initial_state(topic: str) -> dict:
         "review_decision": "",
         "rewrite_count": 0,
         "feedback": "",
+        # Frontier L05：双通道 reviewer 事实修正通道
+        "conflicts": [],
+        "re_research_count": 0,
+        "re_research_queries": [],
     }
 
 

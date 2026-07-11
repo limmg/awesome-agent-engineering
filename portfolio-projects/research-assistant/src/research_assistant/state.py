@@ -48,6 +48,9 @@ class SystemState(TypedDict):
         - review_decision：审稿结论（阶段 2）
         - rewrite_count：已重写次数（阶段 2，防死循环）
         - feedback：审稿反馈（传给 writer 改进）
+        - conflicts：事实冲突列表（Frontier L05，双通道 reviewer 的事实通道）
+        - re_research_count：补研次数（Frontier L05，防死循环）
+        - re_research_queries：定向补研问题（Frontier L05）
     """
     messages: Annotated[list[Any], add_messages]
     findings: Annotated[list[str], operator.add]
@@ -56,3 +59,7 @@ class SystemState(TypedDict):
     review_decision: str
     rewrite_count: int
     feedback: str
+    # Frontier L05：双通道 reviewer 的事实修正通道
+    conflicts: Annotated[list[str], operator.add]
+    re_research_count: int
+    re_research_queries: list[str]

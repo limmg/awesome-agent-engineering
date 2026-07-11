@@ -186,7 +186,24 @@ def make_research_team(research_subgraph):
     async def research_team(state: SystemState) -> dict:
         topic = state["messages"][-1].content
 
-        # 调用并行子图（fresh state，子图无 messages）—— 异步
+        # Frontier L05：如果有定向补研问题（事实冲突触发），用它们做子题
+        re_queries = state.get("re_research_queries", [])
+        if re_queries:
+            # 定向补研：用冲突生成的补研问题作为子问题
+            sub_result = await research_subgraph.ainvoke({
+                "topic": topic,
+                "subtopics": re_queries,  # 直接用补研问题
+                "findings": [],
+                "research_summary": "",
+            })
+            # 补研结果追加到 findings（不清空旧 findings，reducer 会合并）
+            return {
+                "findings": sub_result["findings"],
+                "research_summary": sub_result["research_summary"],
+                "re_research_queries": [],  # 清空，避免重复补研
+            }
+
+        # 正常研究：调用并行子图（fresh state，子图无 messages）—— 异步
         sub_result = await research_subgraph.ainvoke({
             "topic": topic,
             "subtopics": [],
@@ -237,6 +254,15 @@ def make_writer(smart_llm):
         if feedback:
             prompt += f"\n\n⚠️ 审稿反馈（请据此改进）：{feedback}"
 
+        # Frontier L05：如果有冲突修正，要求在报告中写修正说明
+        conflicts = state.get("conflicts", [])
+        if conflicts:
+            conflict_text = "\n".join(f"  - {c}" for c in conflicts)
+            prompt += (
+                f"\n\n📝 修正说明（请在报告中附「修正说明」部分，"
+                f"说明旧结论/新证据/为何采信新的）：\n{conflict_text}"
+            )
+
         resp = smart_llm.invoke(prompt)
         report = resp.content.strip()
 
@@ -249,20 +275,23 @@ def make_writer(smart_llm):
 
 
 # ════════════════════════════════════════════════════════════
-# 审稿节点（阶段 2 新增）
+# 审稿节点（阶段 2 + Frontier L05 双通道升级）
 # ════════════════════════════════════════════════════════════
 def make_reviewer(smart_llm):
-    """reviewer 节点工厂：用 smart_llm 评估报告质量（阶段 2 审稿回路）。
+    """reviewer 节点工厂：双通道审稿（文字 + 事实）。
 
-    这是 L09 承诺但未实现的 supervisor 逻辑——补齐「自我审视 + 迭代改进」。
+    阶段 2（文字通道）：评估报告质量，不合格带 feedback 回 writer 重写。
+    Frontier L05（事实通道）：检测新 findings 与记忆旧结论的冲突，
+      冲突时生成定向补研问题，回到 research_team 补研。
 
-    流程：writer 出报告 → reviewer 审 → 通过则结束；不通过带 feedback 回 writer。
-    防死循环：rewrite_count 达到 MAX_REWRITES 强制通过。
+    review_decision 取值：
+        - "pass"：文字合格且无事实冲突 → END
+        - "rework"：文字不合格 → 回 writer（带 feedback）
+        - "re_research"：事实冲突 → 回 research_team（带补研问题）
 
-    返回 State 增量：
-        - review_decision: "pass" / "rework"
-        - rewrite_count: 累计重写次数
-        - feedback: 审稿意见（rework 时传给 writer）
+    防死循环：
+        - 文字重写：rewrite_count >= max_rewrites 强制 pass
+        - 事实补研：re_research_count >= max_re_research 强制 pass
     """
     @timed_node
     def reviewer(state: SystemState) -> dict:
@@ -270,8 +299,41 @@ def make_reviewer(smart_llm):
 
         report = state.get("report", "")
         rewrite_count = state.get("rewrite_count", 0)
+        re_research_count = state.get("re_research_count", 0)
+        findings = state.get("findings", [])
 
-        # 防死循环：达到上限强制通过
+        # 防死循环：两个通道都达上限强制通过
+        if rewrite_count >= settings.max_rewrites and re_research_count >= settings.max_re_research:
+            return {
+                "review_decision": "pass",
+                "rewrite_count": rewrite_count,
+                "feedback": f"已达重写{settings.max_rewrites}+补研{settings.max_re_research}上限，强制通过。",
+            }
+
+        # ── 事实通道（Frontier L05）：检测冲突 ──────────────────
+        # 只在 enable_memory 且补研次数未超限时检查
+        conflicts: list[str] = []
+        re_research_queries: list[str] = []
+        if settings.enable_memory and re_research_count < settings.max_re_research:
+            mem_store = get_memory_store()
+            if mem_store is not None:
+                conflict_result = check_conflicts(findings, mem_store, smart_llm)
+                conflicts = conflict_result.get("conflicts", [])
+                re_research_queries = conflict_result.get("queries", [])
+                if conflicts:
+                    log.info(f"reviewer 检测到 {len(conflicts)} 个事实冲突，触发定向补研")
+
+        # 有冲突 → 事实通道优先（先修正认知，再修文字）
+        if conflicts:
+            return {
+                "review_decision": "re_research",
+                "conflicts": conflicts,
+                "re_research_count": re_research_count + 1,
+                "re_research_queries": re_research_queries,
+                "feedback": "",  # 事实通道不走 writer
+            }
+
+        # ── 文字通道（阶段 2）：评估报告质量 ─────────────────────
         if rewrite_count >= settings.max_rewrites:
             return {
                 "review_decision": "pass",
@@ -279,7 +341,6 @@ def make_reviewer(smart_llm):
                 "feedback": f"已达最大重写次数 {settings.max_rewrites}，强制通过。",
             }
 
-        # 让 LLM 评估报告质量
         resp = smart_llm.invoke(
             f"你是严格的研究报告审稿人。评估以下报告是否合格，"
             f"判断标准：结构完整（有概述+要点）、信息量充足、表述专业。\n\n"
@@ -288,10 +349,8 @@ def make_reviewer(smart_llm):
         )
         content = resp.content.strip()
 
-        # 解析决策
         if "不合格" in content or "不合格" in content.split("\n")[0]:
             decision = "rework"
-            # 提取反馈（第一行之后的内容）
             feedback_lines = content.split("\n", 1)
             feedback = feedback_lines[1].strip() if len(feedback_lines) > 1 else "报告质量不达标，请改进。"
         else:
@@ -307,20 +366,82 @@ def make_reviewer(smart_llm):
     return reviewer
 
 
+def check_conflicts(findings: list[str], mem_store, llm) -> dict:
+    """检测新 findings 与记忆旧结论的冲突（Frontier L05 事实通道核心）。
+
+    流程：
+        1. 对每条 finding，recall 记忆中的旧结论
+        2. 让 LLM judge 判断「一致 / 冲突 / 无关」
+        3. 冲突的，生成定向补研问题（"验证 X 到底对不对"）
+
+    无 LLM 时降级为关键词重叠检测（粗糙但能跑）。
+    """
+    conflicts: list[str] = []
+    queries: list[str] = []
+
+    for finding in findings:
+        if not finding or len(finding) < 10:
+            continue
+        # recall 相关旧记忆
+        hits = mem_store.recall(finding[:50], k=2)
+        old_conclusions = [m.conclusion for m in hits.get("semantic", [])]
+        if not old_conclusions:
+            continue  # 无旧结论，无冲突
+
+        old_text = "; ".join(old_conclusions[:2])
+
+        if llm is not None:
+            try:
+                resp = llm.invoke(
+                    f"判断新发现与旧结论的关系，只回复一个词：一致 / 冲突 / 无关。\n"
+                    f"新发现：{finding[:200]}\n旧结论：{old_text[:200]}"
+                )
+                verdict = resp.content.strip()
+                if "冲突" in verdict:
+                    conflicts.append(f"新发现「{finding[:60]}」与旧结论「{old_text[:60]}」冲突")
+                    # 生成定向补研问题
+                    q_resp = llm.invoke(
+                        f"新发现与旧结论冲突，生成一个定向补研问题来验证真相：\n"
+                        f"新：{finding[:100]}\n旧：{old_text[:100]}\n"
+                        f"只输出问题本身，不要编号。"
+                    )
+                    queries.append(q_resp.content.strip())
+            except Exception as e:
+                log.warning(f"冲突检测 LLM 调用失败：{e}")
+        else:
+            # 降级：简单关键词检测（新发现含"不是""错误""修正"等冲突信号词）
+            conflict_signals = ["不是", "错误", "修正", "实际上", "并非", "更正"]
+            if any(sig in finding for sig in conflict_signals):
+                conflicts.append(f"新发现可能修正旧结论：{finding[:60]}")
+                queries.append(f"验证：{finding[:50]}")
+
+    return {"conflicts": conflicts, "queries": queries}
+
+
 def review_route(state: SystemState) -> str:
-    """审稿条件边：决定 writer → END 还是 writer → reviewer → writer。
+    """审稿条件边：双通道路由（Frontier L05 升级）。
 
-    返回节点名 "writer"（重写）或 END（通过）。
-
-    ⚠️ 注意：条件边接在 reviewer 之后。reviewer 已经设好 review_decision，
-    这里只读 decision + rewrite_count 做最终路由。
+    返回：
+        - END：通过
+        - "writer"：文字不合格，重写
+        - "research_team"：事实冲突，定向补研
     """
     decision = state.get("review_decision", "pass")
     rewrite_count = state.get("rewrite_count", 0)
+    re_research_count = state.get("re_research_count", 0)
     from .config import settings
 
-    # 通过 或 达到上限 → 结束
-    if decision == "pass" or rewrite_count >= settings.max_rewrites:
+    # 通过 → 结束
+    if decision == "pass":
         return END
-    # 不通过且未达上限 → 回 writer 重写
-    return "writer"
+
+    # 事实冲突 → 补研（未超限时）
+    if decision == "re_research" and re_research_count <= settings.max_re_research:
+        return "research_team"
+
+    # 文字不合格 → 重写（未超限时）
+    if decision == "rework" and rewrite_count < settings.max_rewrites:
+        return "writer"
+
+    # 都超限 → 结束
+    return END
