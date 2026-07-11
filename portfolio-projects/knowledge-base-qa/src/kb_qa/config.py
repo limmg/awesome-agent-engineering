@@ -107,6 +107,15 @@ class Settings(BaseSettings):
     enable_cache: bool = True
     cache_similarity_threshold: float = 0.92
 
+    # ── 成本核算：模型单价（LLMOps L02/L12）────────────────────
+    # 单位：元/百万 token。来源：智谱开放平台定价页（2026-07 查阅），
+    # 官方调价后需在此同步更新——tracing 成本核算与 cost_report 都读这张表。
+    model_price_table: dict[str, dict[str, float]] = {
+        "glm-4":       {"input": 50.0, "output": 50.0},
+        "glm-4-flash": {"input": 0.0,  "output": 0.0},   # flash 当前免费档
+        "embedding-3": {"input": 0.5,  "output": 0.0},
+    }
+
     @field_validator("api_keys", mode="after")
     @classmethod
     def _normalize_api_keys(cls, v: str) -> str:

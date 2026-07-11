@@ -126,13 +126,9 @@ cd portfolio-projects/knowledge-base-qa
 # 前提：已入库（python cli.py ingest）+ 配了 ZHIPUAI_API_KEY
 # 方式 1：用 MCP inspector 可视化调试
 npx @modelcontextprotocol/inspector python mcp_server.py
-# 方式 2：写个一次性 client 调（参考 L07 的 run_client）
-python -c "
-import asyncio, sys
-sys.path.insert(0,'.')
-from ops_demo_client import run  # 见下方说明
-asyncio.run(run())
-"
+# 方式 2：跑本课自带的一次性 client（拉起 server 子进程 → 调 search）
+cd ../../ops-lessons/08_mcp_server
+python demo_client.py
 ```
 
 预期：client 能发现 `search_knowledge_base`，对「云帆科技试用期多久」返回带出处的检索材料。
@@ -168,6 +164,7 @@ asyncio.run(run())
 | 文件 | 改动 | 如何验证 |
 |---|---|---|
 | `mcp_server.py` | **新增**：FastMCP server，`search_knowledge_base` + `ask_knowledge_base` 两个 tool，复用 KBRetriever/generate；stdio/HTTP 双传输 | `python mcp_server.py`（stdio 模式待 client 连接） |
-| `ops-lessons/08_mcp_server/demo_client.py` | **新增**：一次性 client，调 `search_knowledge_base` 验证 server 可用 | `python demo_client.py` |
+| `ops-lessons/08_mcp_server/code.py` | **新增**：自包含教学版（内存假知识库，零 API/零入库），演示「封 tool→发现→调用」完整往返 | `python code.py` |
+| `ops-lessons/08_mcp_server/demo_client.py` | **新增**：一次性 client，拉起真实 mcp_server.py 调 `search_knowledge_base`（需入库+API） | `python demo_client.py` |
 
 下一课 [Lesson 09 — Agent 作为 MCP Client](../09_mcp_client/) 让 research-assistant 调这个 server，两个作品打通。

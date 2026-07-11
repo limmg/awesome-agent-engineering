@@ -132,10 +132,15 @@ print(asyncio.run(kb_search('云帆科技试用期多久')))
 
 ### 跑完整研究（内部+外部双源）
 
+`enable_kb_search` 默认关（无 kb-qa 环境时不破坏原有功能），跑双源研究要先打开：
+
 ```bash
-python cli.py "云帆科技的试用期政策和行业惯例对比"
+# .env 里加 ENABLE_KB_SEARCH=true（或临时环境变量）
+ENABLE_KB_SEARCH=true python cli.py "云帆科技的试用期政策和行业惯例对比"
 # → researcher 会先查内部知识库（试用期政策）+ 联网（行业惯例），合并综合
 ```
+
+> ⚠️ 完整研究流程需要真实智谱 API + kb-qa 已入库，本课实测验证到 `kb_search` 单函数调通 kb-qa server；完整 Agent 研究流的双源合并逻辑未做端到端实测，接入点见 `nodes.py` 的工具装配。
 
 ---
 

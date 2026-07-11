@@ -178,6 +178,8 @@ cd portfolio-projects/knowledge-base-qa
 # 1) 单测（全 mock，不打真实 API）
 python -m pytest tests/test_online_eval.py -q
 # 2) 看采样入队（需 ZHIPUAI_API_KEY；跑几次真实问答后看队列）
+#    ⚠️ 诚实标注：单测（步骤1）全 mock 已验证通过；下面这条「真实 judge 打分→入队」
+#    的端到端路径本机未连真实智谱 API 实测，逻辑与 eval/run_eval.py 的离线管线同构。
 python -c "
 import asyncio, sys
 sys.stdout.reconfigure(encoding='utf-8')

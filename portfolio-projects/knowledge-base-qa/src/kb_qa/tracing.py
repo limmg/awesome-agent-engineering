@@ -28,17 +28,12 @@ from .observability import get_logger
 
 _log = get_logger("kb_qa.tracing")
 
-# 智谱模型单价（元/百万 token）。生产可挪到 config，这里内联便于教学。
-_PRICE_TABLE = {
-    "glm-4":       {"input": 50.0, "output": 50.0},
-    "glm-4-flash": {"input": 0.0,  "output": 0.0},
-    "embedding-3": {"input": 0.5,  "output": 0.0},
-}
-
-
 def compute_cost(model: str, usage: dict) -> float:
-    """按 token 用量 + 模型单价算成本（元）。generation 退出时自动调用。"""
-    price = _PRICE_TABLE.get(model, {"input": 0.0, "output": 0.0})
+    """按 token 用量 + 模型单价算成本（元）。generation 退出时自动调用。
+
+    单价集中在 settings.model_price_table（来源与更新说明见 config.py）。
+    """
+    price = settings.model_price_table.get(model, {"input": 0.0, "output": 0.0})
     in_tok = usage.get("input", 0)
     out_tok = usage.get("output", 0)
     return round((in_tok * price["input"] + out_tok * price["output"]) / 1_000_000, 6)

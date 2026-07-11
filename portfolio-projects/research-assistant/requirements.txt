@@ -23,3 +23,8 @@ python-dotenv>=1.0.0
 # ── 测试（阶段 4）────────────────────────────────────────
 pytest>=7.0.0
 pytest-asyncio>=0.21.0
+
+# ── MCP 集成（LLMOps L09，可选）─────────────────────────────
+# 作为 MCP client 调用 kb-qa 知识库 server（src/research_assistant/kb_mcp_client.py）。
+# 只有开启 enable_kb_search 时才需要；核心研究流程不依赖。
+mcp>=1.2.0

@@ -118,6 +118,30 @@
 
 ---
 
+## 🛡️ 课程五：LLMOps 生产运维课程（共 13 节课）
+
+前四门课教你把 AI 应用**做出来**，本课教你把它**运维起来**——回答面试官那句「你的项目上线之后呢？怎么知道它好不好、怎么防攻击、怎么被别的系统集成、怎么控成本」。所有改动直接落到作品集的 **knowledge-base-qa**，把它从「能跑的 demo」升级为「运维就绪 v2」。四个模块层层递进：
+
+| # | 课程 | 你会学到 |
+|---|------|----------|
+| 01 | [结构化日志](ops-lessons/01_structured_logging/) | 从 print 到可查询的 JSON 事件流 + trace_id 贯穿全链路 |
+| 02 | [Langfuse 全链路追踪](ops-lessons/02_langfuse_tracing/) | 每次问答的检索/rerank/生成耗时、token、成本可视化 |
+| 03 | [线上评估闭环](ops-lessons/03_online_eval/) | 真实问答抽样 + 自动 ragas 打分 + 坏答案队列 |
+| 04 | [API 鉴权与限流](ops-lessons/04_auth_ratelimit/) | key 鉴权 + 按 key 限流，防裸奔防账单打爆（401/429/200） |
+| 05 | [Prompt 注入攻防](ops-lessons/05_prompt_injection/) | 间接注入（恶意指令藏文档里）+ 构造攻击测试集跑失守基线 |
+| 06 | [输入输出守护栏](ops-lessons/06_guardrails/) | 材料隔离 + 指令-数据分离 + 输出过滤，防御固化进 CI |
+| 07 | [MCP 是什么](ops-lessons/07_mcp_basics/) | AI 应用的「USB 接口」：M×N→M+N，手写最小 server/client |
+| 08 | [把知识库封成 MCP Server](ops-lessons/08_mcp_server/) | kb-qa 检索封成标准工具，任意 host 零代码接入 |
+| 09 | [Agent 作 MCP Client](ops-lessons/09_mcp_client/) | research-assistant 调 kb-qa 知识库，两个作品打通 |
+| 10 | [语义缓存](ops-lessons/10_semantic_cache/) | 同义问法命中缓存，跳过检索+生成，降延迟降成本 |
+| 11 | [压测与并发](ops-lessons/11_loadtest/) | QPS/P95/P99 基线，定位瓶颈在上游 API 限流 |
+| 12 | [成本/质量权衡](ops-lessons/12_cost_quality/) | 用评估数据量化 glm-4 vs flash，分环节选型降本 |
+| 13 | [毕业整合：运维就绪 v2](ops-lessons/13_capstone/) | 一张运维面板 + 生产上线检查清单串起全部 12 课 |
+
+> 已完成全部 **13 节课** 🎉。教学 code.py 全部零依赖或有 mock 降级路径可独立跑；落地改动写进 kb-qa 并附「## 落地清单」。跑不了真实外部服务（Langfuse/Docker/压测）的地方均**诚实标注未实测**并给降级路径。
+
+---
+
 ## 🚀 快速开始（5 步）
 
 ```bash
@@ -146,7 +170,7 @@ python rag-lessons/01_getting_started/code.py
 
 ```
 RAG-test/
-├── README.md                  ← 你在这里：四门课程 + 作品集项目总览
+├── README.md                  ← 你在这里：五门课程 + 作品集项目总览
 ├── requirements.txt           ← 依赖（五门课统一）
 ├── .env.example               ← API Key 配置模板
 ├── data/sample_docs/          ← 练习用的示例文档（五门课共用）
@@ -163,8 +187,6 @@ RAG-test/
 
 每节课固定三件套：**①原理 README（讲 why 和取舍）+ ②可运行 code.py（带详细中文注释）+ ③练习**。
 作品集项目则是**模块化工程结构**（src/ + api/ + tests/ + Docker），按生产标准组织。
-
-每节课固定三件套：**①原理 README（讲 why 和取舍）+ ②可运行 code.py（带详细中文注释）+ ③练习**。
 
 ---
 

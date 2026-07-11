@@ -46,7 +46,7 @@ from kb_qa.tracing import compute_cost  # noqa: E402
 GOLDEN_PATH = _ROOT / "eval" / "golden_set.json"
 REPORT_PATH = _ROOT / "eval" / "cost_report.md"
 METRICS = [faithfulness, answer_relevancy, context_precision, context_recall]
-_PRICE = {"glm-4": {"input": 50.0, "output": 50.0}, "glm-4-flash": {"input": 0.0, "output": 0.0}}
+# 模型单价集中在 settings.model_price_table，成本统一走 tracing.compute_cost
 _CONCURRENCY = 4
 
 
