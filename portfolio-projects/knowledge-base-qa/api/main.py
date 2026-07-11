@@ -29,6 +29,7 @@ from sse_starlette.sse import EventSourceResponse
 
 from kb_qa.auth import rate_limit
 from kb_qa.config import settings
+from kb_qa.guardrails import scan_upload
 from kb_qa.ingest import get_vectorstore, ingest_directory
 from kb_qa.observability import get_logger, setup_logging
 from kb_qa.service import reset_kb, stream_ask
@@ -73,9 +74,14 @@ async def upload(file: UploadFile) -> UploadResponse:
     if len(content) > settings.upload_max_mb * 1024 * 1024:
         raise HTTPException(413, f"文件超过 {settings.upload_max_mb}MB 上限")
     try:
-        content.decode("utf-8")
+        text = content.decode("utf-8")
     except UnicodeDecodeError:
         raise HTTPException(400, "文件必须是 UTF-8 编码文本")
+
+    # 上传侧守护栏（LLMOps L06）：入库前扫描注入标记，拒收可疑文档。
+    is_safe, reason = scan_upload(text)
+    if not is_safe:
+        raise HTTPException(400, f"文档未通过安全检查：{reason}")
 
     dest = Path(settings.docs_dir) / name
     dest.write_bytes(content)

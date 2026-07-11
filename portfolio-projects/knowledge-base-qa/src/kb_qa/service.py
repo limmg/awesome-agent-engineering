@@ -16,6 +16,7 @@ from typing import AsyncIterator
 from .config import settings
 from .generate import condense_question, stream_answer
 from .history import ChatHistory
+from .guardrails import sanitize_output
 from .observability import estimate_tokens, get_logger, log_event, new_trace_id, set_trace_id
 from .online_eval import sample_and_evaluate
 from .retriever import KBRetriever
@@ -124,6 +125,12 @@ async def stream_ask(
             gen.output = answer[:500]  # 截断避免 trace 过大
             gen.usage = {"input": sum(estimate_tokens(d.page_content) for d in docs) + estimate_tokens(question),
                          "output": estimate_tokens(answer), "unit": "TOKENS"}
+
+        # 输出侧守护栏（LLMOps L06）：对完整答案做泄露/越权检测兜底。
+        # 注意：流式 token 已发给前端，此处过滤作用于「落历史的答案」+
+        # 「done 事件回吐的答案」，防止泄露内容进入会话历史/日志/trace。
+        # 生产可进一步在流式层做实时拦截（见 exercise）。
+        answer = sanitize_output(answer)
 
         history.append(thread_id, "human", question)
         history.append(thread_id, "ai", answer)
