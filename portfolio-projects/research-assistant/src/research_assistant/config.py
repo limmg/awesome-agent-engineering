@@ -75,6 +75,12 @@ class Settings(BaseSettings):
     # SqliteSaver 数据库路径；为空则用 InMemorySaver（测试用）
     sqlite_db_path: str = "research_assistant.db"
 
+    # ── MCP 集成（LLMOps L09 · 内部知识库工具）──────────────────
+    # 启用后，researcher 节点会先查 kb-qa 内部知识库（经 MCP 协议），再联网补充。
+    # enable_kb_search=false 或 kb-qa 不可用时，自动降级为纯联网（不破坏现有功能）。
+    enable_kb_search: bool = False
+    kb_mcp_server_path: str = ""   # 留空=自动定位同仓库的 kb-qa/mcp_server.py
+
     # ── 服务（阶段 3）──────────────────────────────────────────
     host: str = "0.0.0.0"
     port: int = 8000

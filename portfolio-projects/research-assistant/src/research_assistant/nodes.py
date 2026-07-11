@@ -13,6 +13,8 @@ from langgraph.graph import END
 from .logging_config import timed_node
 from .state import ResearchState, SystemState
 from .tools import web_search
+from .kb_mcp_client import kb_search
+from .config import settings
 
 
 # ════════════════════════════════════════════════════════════
@@ -66,8 +68,22 @@ def make_researcher(fast_llm):
     async def researcher(state: dict) -> dict:
         subtopic = state["subtopic"]
 
+        # 内部知识库检索（LLMOps L09）：启用时先查企业知识库（经 MCP 协议）。
+        # kb_search 失败时返回降级提示（不抛异常），不影响后续联网。
+        kb_raw = await kb_search(subtopic) if settings.enable_kb_search else ""
+        kb_hit = bool(kb_raw) and "未找到" not in kb_raw and "不可用" not in kb_raw \
+            and "失败" not in kb_raw and "未启用" not in kb_raw and "没有相关材料" not in kb_raw
+
         # 真实联网搜索（tools.py，带限流/超时/兜底）
-        search_raw = await web_search(subtopic)
+        web_raw = await web_search(subtopic)
+
+        # 合并内部+外部素材（内部优先，外部补充）
+        if kb_hit:
+            search_raw = f"{kb_raw}\n\n--- 外部联网补充 ---\n{web_raw}"
+            source_tag = "内部知识库 + 联网搜索"
+        else:
+            search_raw = web_raw
+            source_tag = "真实联网搜索"
 
         # 判断是否拿到有效素材
         has_source = "没有返回结果" not in search_raw and "失败" not in search_raw and "超时" not in search_raw
@@ -78,7 +94,7 @@ def make_researcher(fast_llm):
                 f"你是研究员。针对子问题「{subtopic}」，基于以下搜索资料，"
                 f"提炼 2-3 句核心发现（不要照抄，要提炼）：\n\n{search_raw}"
             )
-            finding = f"【{subtopic}】\n  发现：{resp.content.strip()}\n  来源：真实联网搜索"
+            finding = f"【{subtopic}】\n  发现：{resp.content.strip()}\n  来源：{source_tag}"
         else:
             # 搜索兜底：LLM 基于自身知识回答（标注无来源，诚实降级）
             resp = fast_llm.invoke(f"用 2-3 句话回答：{subtopic}")
