@@ -109,6 +109,15 @@ class Settings(BaseSettings):
     # 报告附录附执行过的代码（可复算性）。默认关：不破坏现有测试。
     enable_code_interpreter: bool = False
 
+    # ── 长任务账本（Frontier L10 · 跨会话任务状态）─────────────────
+    # 启用后，Agent 跨多次运行推进同一主题：TODO 树持久化 + 断点续跑 + 增量简报。
+    # 区别于记忆（经验）和 checkpoint（对话）——账本是「计划进度」。
+    # 默认关：不破坏现有测试；开启后第三次运行接着第二次做而非从头来。
+    enable_ledger: bool = False
+    ledger_db_path: str = "task_ledger.db"
+    # 产出模式：full=完整报告（现状）/ incremental=增量简报（L10）
+    output_mode: str = "full"
+
     # ── 服务（阶段 3）──────────────────────────────────────────
     host: str = "0.0.0.0"
     port: int = 8000
