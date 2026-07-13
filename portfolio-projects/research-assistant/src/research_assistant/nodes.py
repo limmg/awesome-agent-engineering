@@ -22,6 +22,30 @@ log = get_logger("nodes")
 _memory_store = None
 
 
+# 浏览器工具单例（GUI Agent L09）：懒加载，无 enable_browser 时不创建
+def get_browser_tool():
+    """获取全局 BrowserTool 单例。
+
+    enable_browser=false 时返回 None（完全不介入，现有测试不受影响）。
+    仿 get_memory_store 模式。实现在 browser_tool.py。
+    """
+    if not settings.enable_browser:
+        return None
+    from .browser_tool import get_browser_tool as _get
+    return _get()
+
+
+def _extract_urls_from_search(search_raw: str) -> list[str]:
+    """从 web_search 的格式化文本里提取来源 URL。
+
+    web_search 输出格式（tools.py）：
+        [1] 标题\n    摘要\n    来源: https://...
+    提取所有 https?:// 开头的 URL。
+    """
+    import re
+    return re.findall(r'https?://[^\s）)]+', search_raw)
+
+
 def get_memory_store():
     """获取/创建全局 MemoryStore 单例。
 
@@ -126,6 +150,24 @@ def make_researcher(fast_llm):
         # 真实联网搜索（tools.py，带限流/超时/兜底）
         web_raw = await web_search(subtopic)
 
+        # ── 浏览器取证（GUI Agent L09）──────────────────────────
+        # 启用时，从 web_search 拿到的来源链接里挑 allowlist 内的详情页，
+        # 真开浏览器进详情页提取结构化证据（带 URL+访问时间）。
+        # 失败/未启用时降级为纯搜索摘要（不让研究流程断）。
+        browser_evidence = ""
+        browser_tool = get_browser_tool()
+        if browser_tool is not None:
+            try:
+                urls = _extract_urls_from_search(web_raw)
+                if urls:
+                    evidences = await browser_tool.browse_for_evidence(subtopic, urls, max_pages=2)
+                    browser_evidence = browser_tool.format_evidence_for_prompt(evidences)
+                    if browser_evidence:
+                        log.info(f"researcher 浏览器取证：{len(evidences)} 页证据")
+            except Exception as e:
+                log.warning(f"browser_tool 取证失败，降级到搜索摘要：{e}")
+                browser_evidence = ""
+
         # 合并内部+外部素材（内部优先，外部补充）
         if kb_hit:
             search_raw = f"{kb_raw}\n\n--- 外部联网补充 ---\n{web_raw}"
@@ -133,6 +175,11 @@ def make_researcher(fast_llm):
         else:
             search_raw = web_raw
             source_tag = "真实联网搜索"
+
+        # 浏览器证据附加（若有）
+        if browser_evidence:
+            search_raw = f"{search_raw}\n\n--- 浏览器详情页取证 ---\n{browser_evidence}"
+            source_tag = f"{source_tag} + 浏览器取证"
 
         # 判断是否拿到有效素材
         has_source = "没有返回结果" not in search_raw and "失败" not in search_raw and "超时" not in search_raw

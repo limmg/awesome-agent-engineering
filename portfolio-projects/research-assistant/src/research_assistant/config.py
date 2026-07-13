@@ -122,6 +122,23 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 8000
 
+    # ── 浏览器工具（GUI Agent 课程 L09 · 会上网的研究智能体）──────
+    # 启用后，researcher 从「只看 ddgs 搜索摘要」升级到「真开浏览器进详情页取证」，
+    # 带回 URL+访问时间的证据链（L10）。默认关：不破坏现有测试；开启后能拿到
+    # 搜索 API 拿不到的详情页结构化字段/翻页内容/时效证据。
+    # 工具分层：search（快浅便宜）打头，需要详情页才开 browse（慢深贵），失败降级回 search。
+    enable_browser: bool = False
+    # 浏览器 agent 循环步数上限（成本控制，每步一次 LLM+一次浏览器操作）
+    browser_max_steps: int = 12
+    # 单页操作超时（秒）
+    browser_page_timeout: int = 15
+    # 无头模式（测试/CI 用 True，调试用 False）
+    browser_headless: bool = True
+    # 域名 allowlist（L07 安全：逗号分隔，空=用默认 DEFAULT_ALLOWED_DOMAINS）
+    browser_domain_allowlist: str = ""
+    # 视觉模型（混合路线卡住时截图求助用，L05）
+    vision_model: str = "glm-4v-plus"
+
 
 @lru_cache
 def get_settings() -> Settings:
