@@ -279,6 +279,47 @@ research-assistant/
 
 ---
 
+## 🖥️ 会上网的研究智能体（GUI Agent）
+
+经 [gui-agent-lessons](../../gui-agent-lessons/)（GUI Agent / Computer Use 课程，13 课）升级，research-assistant 从「只看搜索摘要」升级到**真开浏览器进详情页取证**——给它长出一双稳、安全、可评估的「手」。
+
+### Browser 四层（手写 + 落地封装）
+
+| 层 | 课程 | 核心能力 | 落地 |
+|----|------|---------|------|
+| 👁️ **观察空间** | [L02](../../gui-agent-lessons/02_observation/) | 元素编号列表（比原始 HTML 省 9x token）+ SoM 截图（混合路线） | `browser_tool.extract_from_page` |
+| 🎯 **行动空间** | [L03](../../gui-agent-lessons/03_action/) | 受限 DSL（click/type/scroll/back/finish），可校验可白名单 | 简化为直接选择器提取 |
+| 🛡️ **可靠性** | [L06](../../gui-agent-lessons/06_reliability/) | 循环检测（观察哈希）+ 换策略 + 重试预算 + 人工接管点 | 超时兜底 + 降级链 |
+| 🔒 **安全**（默认开） | [L07](../../gui-agent-lessons/07_injection/) | 域名 allowlist + 敏感动作确认 + 注入扫描——**不随 enable_browser 开关** | `SecurityLayer` 内置 |
+
+### 工具分层：search vs browse
+
+| 工具 | 速度 | 深度 | 成本 | 用在 |
+|------|------|------|------|------|
+| `web_search`（ddgs） | 快 | 浅（摘要） | 低 | 打头：每个子问题都搜，拿候选链接 |
+| `browse_for_evidence` / `deep_browse` | 慢 | 深（详情页/翻页/取证） | 高 | 深挖：从候选链接挑 allowlist 内的，真开浏览器提取 |
+
+流程：researcher 先 `web_search` 拿摘要+链接 → `enable_browser` 时挑 allowlist 内 URL → `browse_for_evidence` 进详情页提取 → 证据附进 finding。**降级链**：browse 失败 → 回退 search 摘要（研究流程不断）。
+
+### 证据链（报告可信度第二次升级）
+
+每条证据带 **URL + 访问时间 + 页面快照**，报告引用格式：`结论（[来源](URL)，访问于 YYYY-MM-DD HH:MM UTC）`。与 frontier L07「数字可复算」呼应——**数字可复算 + 来源可回访** = 可审计的深度研究。
+
+### 评估（mini-benchmark）
+
+- **本地 mini-benchmark**（[L08](../../gui-agent-lessons/08_benchmark/)）：8 任务（搜索/翻页/详情/动态渲染/弹窗/刁难/注入/多步）+ 功能性验收（WebArena 思路：查终态不评文本）
+- 对照 [L00 裸基线](../../gui-agent-lessons/00_overview/)：任务成功率 75%→100%、引用可回访率 0%→100%、注入失守率 100%→0%
+
+### 架构文档
+
+详见 [`docs/browser-agent.md`](docs/browser-agent.md)——四层全景图 + 与 frontier 五机制协作 + 数据流 + 开关降级 + 收益表 + 安全红线。
+
+### 测试覆盖（更新）
+
+**123 个单元测试**（原 104 + GUI Agent 新增 19），所有开关组合下全绿。新增测试覆盖：browser 安全层 / 降级链 / 证据格式 / 单例开关 / deep_browse 多步取证。`enable_browser` 默认关，开启需 playwright + chromium。
+
+---
+
 ## ⚠️ 已知限制 & 后续演进
 
 | 限制 | 影响 | 演进方向 |

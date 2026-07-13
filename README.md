@@ -2,16 +2,16 @@
 
 > **中文** | [English](README.en.md)
 
-这是一套**从零开始、系统掌握大模型应用开发**的实战课程，覆盖 **RAG、Agent、框架工程化、多智能体编排、LLMOps 生产运维、智能体前沿** 六大方向。
-面向**会 Python 但刚接触大模型**的开发者，用可运行的代码 + 原理讲解，一步步从原理手写到框架落地，再到多 Agent 协作架构，最后深入 Agent 前沿能力。
+这是一套**从零开始、系统掌握大模型应用开发**的实战课程，覆盖 **RAG、Agent、框架工程化、多智能体编排、LLMOps 生产运维、智能体前沿、GUI Agent** 七大方向。
+面向**会 Python 但刚接触大模型**的开发者，用可运行的代码 + 原理讲解，一步步从原理手写到框架落地，再到多 Agent 协作架构，最后深入 Agent 前沿能力与「让 Agent 上网操作页面」的最后一公里。
 
 > 技术栈：智谱 GLM-4 + embedding-3 · Chroma 本地向量库 · LangChain + LangGraph · CrewAI · AutoGen · Python
 
 ---
 
-## 🗺️ 六门课程总览
+## 🗺️ 七门课程总览
 
-本工作区包含**六门递进课程**，建议按顺序学：
+本工作区包含**七门递进课程**，建议按顺序学：
 
 | 课程 | 内容 | 状态 |
 |------|------|------|
@@ -21,8 +21,9 @@
 | 🔀 [工作流与多智能体编排](workflow-lessons/) | 多 Agent 协作架构（supervisor/swarm/子图/并行/共享态/多模型，三框架横向对比）| ✅ 9/9 完成 |
 | 🛡️ [LLMOps 生产运维](ops-lessons/) | 上线之后：可观测性（日志/追踪/线上评估）→ 安全（鉴权限流/注入攻防/守护栏）→ MCP 集成 → 性能成本（缓存/压测/选型）。把作品集项目从「能跑」推进到「运维就绪」| ✅ 13/13 完成 |
 | 🧠 [智能体前沿](frontier-lessons/) | Agent 记忆/反思/Code Agent/轨迹评估/上下文工程/长任务——教未收敛的前沿，把 research-assistant 养成跨会话进化的深度智能体（Deep Research Agent v2）。**每课有流派对比 + 设计实验验证收益** | ✅ 13/13 完成 |
+| 🖥️ [GUI Agent / Computer Use](gui-agent-lessons/) | 让 Agent 从「会搜索」到「会上网」：Playwright 控制层→观察空间→行动 DSL→文本/视觉/混合三路线→可靠性→网页注入攻防→本地 mini-benchmark→落地 research-assistant 长出「手」→证据链→毕业整合。未收敛前沿，三大流派（文本/视觉/专用模型）取舍 + SoM 消融实验 | ✅ 13/13 完成 |
 
-> **学习路径**：先学 RAG（懂检索原理）→ 再学 Agent（懂自主决策）→ 再学框架进阶（工程化落地）→ 再学多智能体编排（架构师进阶）→ 再学 LLMOps（运维就绪）→ 最后学智能体前沿（让 Agent 自主进化）。
+> **学习路径**：先学 RAG（懂检索原理）→ 再学 Agent（懂自主决策）→ 再学框架进阶（工程化落地）→ 再学多智能体编排（架构师进阶）→ 再学 LLMOps（运维就绪）→ 再学智能体前沿（让 Agent 自主进化）→ 最后学 GUI Agent（让 Agent 会上网操作页面）。
 
 ---
 
@@ -33,7 +34,7 @@
 | 项目 | 内容 | 状态 |
 |------|------|------|
 | 📚 [企业知识库问答系统](portfolio-projects/knowledge-base-qa/) | 生产级 RAG：混合检索 + 智谱 rerank + 防幻觉引用 + ragas 评估。**经 ops-lessons 升级为运维就绪 v2**：结构化日志/Langfuse 追踪/线上评估闭环 + key 鉴权限流 + 注入攻防守护栏 + MCP Server（可被 Agent 调用）+ 语义缓存/压测/成本选型。| ✅ 运维就绪 |
-| 🔬 [AI 研究分析助手](portfolio-projects/research-assistant/) | 多智能体并行研究系统：真实联网搜索 + 审稿回路 + 多模型降本 + SSE 流式 + SqliteSaver 持久化 + FastAPI 服务化 + Docker 部署。**经 ops-lessons L09 接入 MCP**（内部+联网双源）。**经 frontier-lessons 升级为 Deep Research Agent v2**：Agent 记忆（情景/语义分层）+ 反思式双通道 reviewer（冲突修正）+ CodeAct 代码解释器（可复算）+ Skills 渐进式加载 + 任务账本（跨会话增量简报）+ 轨迹评估（机制收益量化）。| ✅ Deep v2 |
+| 🔬 [AI 研究分析助手](portfolio-projects/research-assistant/) | 多智能体并行研究系统：真实联网搜索 + 审稿回路 + 多模型降本 + SSE 流式 + SqliteSaver 持久化 + FastAPI 服务化 + Docker 部署。**经 ops-lessons L09 接入 MCP**（内部+联网双源）。**经 frontier-lessons 升级为 Deep Research Agent v2**：Agent 记忆（情景/语义分层）+ 反思式双通道 reviewer（冲突修正）+ CodeAct 代码解释器（可复算）+ Skills 渐进式加载 + 任务账本（跨会话增量简报）+ 轨迹评估（机制收益量化）。**经 gui-agent-lessons 长出「手」**：browser_tool 浏览器取证（详情页/翻页/证据链 URL+访问时间）+ 安全层（域名 allowlist/敏感动作确认/注入扫描，默认开）+ 可靠性（循环检测）+ 本地 mini-benchmark。| ✅ 会上网 |
 
 > 这是课程能力的**生产级落地**——不是 demo，是能直接部署、能扛真实流量、能讲完整运维故事的 AI 应用服务。
 > 两个项目通过 MCP 标准协议打通（见 [ops-lessons L09](ops-lessons/09_mcp_client/)）。
@@ -169,6 +170,30 @@
 
 ---
 
+## 🖥️ 课程七：GUI Agent / Computer Use 课程（共 13 节课）
+
+前六门课把 research-assistant 养成了**会思考**的深度智能体，但它只有脑子没有手——「研究世界」的唯一渠道是搜索摘要。本课教 **2025–2026 仍未收敛的前沿**：让 Agent 直接操作浏览器完成任务（打开页面、点击、翻页、提取、下载），给 research-assistant 长出一双**稳、安全、可评估**的手。课程风格延续第六门课：README 不讲「标准做法」，讲「三大流派（文本/视觉/专用模型）取舍是什么、选 X 因为……」；代码是「手写核心机制 + 设计实验验证有没有用」。所有落地改动作用于 research-assistant，`enable_browser` 默认关，123 测试始终绿。
+
+| # | 课程 | 你会学到 |
+|---|------|---------|
+| 00 | [全景与基线](gui-agent-lessons/00_overview/) | 三大流派地图 + WebArena/SeeAct/OSWorld 导读 + 硬任务定义 + 跑裸基线（搜索摘要拿不到什么） |
+| 01 | [Playwright 地基](gui-agent-lessons/01_playwright/) | BrowserSession 确定性控制（auto-wait/超时兜底/上下文管理器）+ 慢加载/弹窗页 |
+| 02 | [观察空间](gui-agent-lessons/02_observation/) | page_to_obs 三种页面表示（原始HTML/元素编号列表/纯文本）+ token 对比（省 9x） |
+| 03 | [行动空间](gui-agent-lessons/03_action/) | 受限动作 DSL（click/type/scroll/back/finish）+ 解析校验 + 非法动作结构化错误回注 |
+| 04 | [最小 GUI Agent](gui-agent-lessons/04_text_agent/) | observe→think→act 循环 + 滑动窗口上下文裁剪 + mock LLM 零 API 跑通 |
+| 05 | [视觉路线](gui-agent-lessons/05_vision/) | SoM 标注截图喂 glm-4v-plus + 文本/视觉/混合三路线同任务对比（token/成功率） |
+| 06 | [可靠性工程](gui-agent-lessons/06_reliability/) | 失败模式清单 + 循环检测（观察哈希）+ 换策略 + 刁难页 before/after |
+| 07 | [网页注入攻防](gui-agent-lessons/07_injection/) | GUI 注入比 RAG 危险一个量级（做错事非说错话）+ 动作层防御（allowlist/敏感确认/注入扫描） |
+| 08 | [评估 mini-benchmark](gui-agent-lessons/08_benchmark/) | WebArena 思路：自托管本地任务集 + 功能性验收 + 轨迹评估器双层评估 |
+| 09 | [落地：长出「手」](gui-agent-lessons/09_browser_tool/) | browser_tool.py 接入 researcher（async + 安全默认开 + 降级链 + 17 测试） |
+| 10 | [深度浏览证据链](gui-agent-lessons/10_evidence/) | deep_browse 多步取证 + 证据链（URL+访问时间+快照）+ 报告引用可回访 |
+| 11 | [毕业整合](gui-agent-lessons/11_capstone/) | 会上网的 Deep Research Agent：四层协同 + 架构文档 + 收益表（成功率 75%→100%） |
+| 12 | [前沿追踪](gui-agent-lessons/12_frontier/) | 专用模型 vs 通用 VLM+脚手架三轴框架 + SoM 有无消融最小复现 |
+
+> 已完成全部 **13 节课** 🎉。**两条贯穿主线**：①评估主线（L00 裸基线→L08 mini-benchmark→L11 收益表量化全部机制收益）；②观察-行动接口主线（L02 观察空间→L03 行动 DSL→L04 循环合拢，是上下文工程母题在 GUI 场景的延伸）。每课 README 有「流派对比」小节 + 至少一道「设计实验验证」练习。落地后 research-assistant 新增 19 个 browser 测试（全量 123 全绿），`enable_browser` 默认关、降级路径完好。
+
+---
+
 ## 🚀 快速开始（5 步）
 
 ```bash
@@ -197,19 +222,20 @@ python rag-lessons/01_getting_started/code.py
 
 ```
 RAG-test/
-├── README.md                  ← 你在这里：六门课程 + 作品集项目总览
-├── requirements.txt           ← 依赖（六门课统一）
+├── README.md                  ← 你在这里：七门课程 + 作品集项目总览
+├── requirements.txt           ← 依赖（七门课统一）
 ├── .env.example               ← API Key 配置模板
-├── data/sample_docs/          ← 练习用的示例文档（六门课共用）
+├── data/sample_docs/          ← 练习用的示例文档（七门课共用）
 ├── rag-lessons/               ← 课程一：RAG 手写（9 课，已完成）
 ├── agent-lessons/             ← 课程二：Agent 手写（9 课，已完成）
 ├── framework-lessons/         ← 课程三：框架进阶（9 课，已完成）
 ├── workflow-lessons/          ← 课程四：工作流与多智能体编排（9 课，已完成）
 ├── ops-lessons/               ← 课程五：LLMOps 生产运维（13 课，已完成）
 ├── frontier-lessons/          ← 课程六：智能体前沿（13 课，已完成）
-├── portfolio-projects/        ← 🚀 生产级作品集项目（学完课程后的落地，ops/frontier 主战场）
+├── gui-agent-lessons/         ← 课程七：GUI Agent / Computer Use（13 课，已完成）
+├── portfolio-projects/        ← 🚀 生产级作品集项目（学完课程后的落地，ops/frontier/gui 主战场）
 │   ├── knowledge-base-qa/     ←   企业知识库问答（RAG，运维就绪 v2）
-│   └── research-assistant/    ←   AI 研究分析助手（多智能体 + FastAPI + Docker）
+│   └── research-assistant/    ←   AI 研究分析助手（多智能体 + FastAPI + Docker，会上网）
 └── docs/                      ← 设计文档与实现计划
 ```
 

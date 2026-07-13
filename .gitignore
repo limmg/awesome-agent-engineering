@@ -30,5 +30,7 @@ frontier-lessons/*/mem_raw/
 frontier-lessons/*/mem_refined/
 frontier-lessons/*/mem_rule/
 frontier-lessons/*/demo_*/
+# GUI Agent 截图中间产物（raw 截图忽略；som_demo.png 标注图存档例外，已跟踪）
+gui-agent-lessons/*/*_raw.png
 *.db
 *.db-journal
