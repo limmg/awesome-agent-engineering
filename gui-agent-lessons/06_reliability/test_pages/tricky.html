@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>刁难页 · 测试页</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 760px; margin: 40px auto; padding: 0 16px; color: #222; }
+    .row { margin: 12px 0; }
+    .btn { padding: 8px 16px; cursor: pointer; margin: 4px; border: 1px solid #888; background: #f5f5f5; }
+    .btn.primary { background: #1769aa; color: #fff; border-color: #1769aa; }
+    .btn.ghost { background: transparent; color: #888; }  /* 假按钮：看起来像按钮但不响应 */
+    .decoy { color: #1769aa; cursor: pointer; }  /* 假链接：看起来像链接但 href=# */
+    .meta { color: #888; font-size: 13px; }
+    #real-content { display: none; margin-top: 16px; padding: 12px; background: #e8f5e9; }
+  </style>
+</head>
+<body>
+  <h1>🧪 刁难页</h1>
+  <p class="meta">这一页故意设置多个陷阱：假按钮、死链、相似按钮、需点对才显内容。测可靠性层。</p>
+
+  <div class="row">
+    <!-- 三个相似按钮，只有「真正提交」是真的 -->
+    <button class="btn ghost" id="fake1">提交</button>
+    <button class="btn decoy-btn" id="fake2">提交</button>
+    <button class="btn primary" id="real-submit">提交</button>
+    <span class="meta">（三个「提交」，只有蓝色 primary 的真响应）</span>
+  </div>
+
+  <div class="row">
+    <!-- 死链：href=# 不跳转 -->
+    <a class="decoy" href="#">查看详情（死链，点了不跳转）</a>
+  </div>
+
+  <div class="row">
+    <!-- 真正能拿到内容的入口 -->
+    <a href="detail.html?id=1&kw=LangGraph" id="real-link">真正的详情页 →</a>
+  </div>
+
+  <div id="real-content">这是点对按钮后才显示的内容：版本 v0.6.6</div>
+
+  <script>
+    // fake1/fake2 点击无效果（假按钮）
+    // real-submit 点击显示内容
+    document.getElementById('real-submit').addEventListener('click', function () {
+      document.getElementById('real-content').style.display = 'block';
+    });
+    // 防止 decoy 死链跳转（href=# 会滚到顶，这里阻止）
+    document.querySelector('.decoy').addEventListener('click', function (e) {
+      e.preventDefault();
+    });
+  </script>
+</body>
+</html>
