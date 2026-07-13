@@ -201,7 +201,7 @@ def main():
     print(f"   - 工具分层：search 快浅 / browse 慢深，各司其职")
     print(f"   - 降级链：browse 失败回退 search，研究不断")
     print(f"   - 安全默认开：allowlist/敏感确认/注入扫描 不随 enable_browser 开关")
-    print(f"   - enable_browser 默认关 + 单例懒加载，121 测试全绿")
+    print(f"   - enable_browser 默认关 + 单例懒加载，123 测试全绿")
     print(f"   - 真实接入见 research-assistant/src/research_assistant/browser_tool.py")
 
 

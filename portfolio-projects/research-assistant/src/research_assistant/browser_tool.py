@@ -299,7 +299,14 @@ class BrowserTool:
         return evidences
 
     async def _pick_next_link(self, page, hint: str, allowed: set[str]) -> str | None:
-        """从当前页挑下一个要跟的链接（含 hint 优先，过 allowlist）。"""
+        """从当前页挑下一个要跟的链接（含 hint 优先，过 allowlist + 敏感检测）。
+
+        敏感 URL（登录/支付/下载等，is_sensitive_url）直接跳过：
+        deep_browse 是无人值守的自动跟链，没有人工确认的机会，宁可不跟。
+        """
+        def _link_ok(href: str) -> bool:
+            return check_url_allowed(href, allowed) and not is_sensitive_url(href)
+
         try:
             links = await page.locator("a").all()
             for link in links:
@@ -310,19 +317,19 @@ class BrowserTool:
                 if not href.startswith(("http://", "https://")):
                     base = page.url
                     href = f"{urlparse(base).scheme}://{urlparse(base).hostname}" + href
-                if not check_url_allowed(href, allowed):
+                if not _link_ok(href):
                     continue
                 # hint 优先
                 if hint and hint.lower() in (await link.inner_text()).lower():
                     return href
-            # 无 hint 命中，取第一个 allowlist 内的链接
+            # 无 hint 命中，取第一个安全链接
             for link in links:
                 href = await link.get_attribute("href")
                 if href and not href.startswith("#"):
                     if not href.startswith(("http://", "https://")):
                         base = page.url
                         href = f"{urlparse(base).scheme}://{urlparse(base).hostname}" + href
-                    if check_url_allowed(href, allowed):
+                    if _link_ok(href):
                         return href
         except Exception:
             pass

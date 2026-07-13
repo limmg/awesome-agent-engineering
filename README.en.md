@@ -2,7 +2,7 @@
 
 > [中文](README.md) | **English**
 
-A hands-on, **learn-from-zero-to-mastery** course for building large language model applications, covering six tracks: **RAG · Agents · Framework Engineering · Multi-Agent Orchestration · LLMOps · Agent Frontiers**.
+A hands-on, **learn-from-zero-to-mastery** course for building large language model applications, covering seven tracks: **RAG · Agents · Framework Engineering · Multi-Agent Orchestration · LLMOps · Agent Frontiers · GUI Agents / Computer Use**.
 
 Designed for **developers who know Python but are new to LLMs**, it pairs runnable code with principle walkthroughs—taking you step by step from hand-written fundamentals to framework implementations, then to multi-agent architectures, and finally into the frontier of agent capabilities.
 
@@ -10,9 +10,9 @@ Designed for **developers who know Python but are new to LLMs**, it pairs runnab
 
 ---
 
-## 🗺️ The Six Courses at a Glance
+## 🗺️ The Seven Courses at a Glance
 
-This workspace holds **six progressive courses**. Recommended order:
+This workspace holds **seven progressive courses**. Recommended order:
 
 | Course | What you learn | Status |
 |--------|----------------|--------|
@@ -22,8 +22,9 @@ This workspace holds **six progressive courses**. Recommended order:
 | 🔀 [Workflow & Multi-Agent Orchestration](workflow-lessons/) | Multi-agent collaboration architectures (supervisor / swarm / subgraphs / parallel / shared state / multi-model; side-by-side comparison across three frameworks) | ✅ 9/9 done |
 | 🛡️ [LLMOps in Production](ops-lessons/) | After launch: observability (logging / tracing / online eval) → security (auth & rate limiting / injection offense & defense / guardrails) → MCP integration → performance & cost (caching / load testing / model selection). Take the portfolio projects from "works" to "ops-ready" | ✅ 13/13 done |
 | 🧠 [Agent Frontiers](frontier-lessons/) | Agent memory / reflection / Code Agents / trajectory eval / context engineering / long-horizon tasks—teaching not-yet-converged frontiers, growing research-assistant into a cross-session Deep Research Agent v2. **Every lesson has a schools-of-thought comparison + design experiments that validate the gains** | ✅ 13/13 done |
+| 🖥️ [GUI Agent / Computer Use](gui-agent-lessons/) | From "can search" to "can browse": Playwright control layer → observation space → action DSL → text/vision/hybrid routes → reliability → web-injection offense & defense → a local, reproducible mini-benchmark → landing on research-assistant so it grows "hands" → evidence chains → capstone. A not-yet-converged frontier: three schools of thought (text / vision / dedicated models) with trade-offs + a SoM ablation experiment | ✅ 13/13 done |
 
-> **Learning path:** RAG first (understand retrieval) → Agents (autonomous decision-making) → Framework Engineering (productionize) → Multi-Agent Orchestration (architect track) → LLMOps (ops-ready) → Agent Frontiers (let agents evolve).
+> **Learning path:** RAG first (understand retrieval) → Agents (autonomous decision-making) → Framework Engineering (productionize) → Multi-Agent Orchestration (architect track) → LLMOps (ops-ready) → Agent Frontiers (let agents evolve) → GUI Agents (let agents operate the web).
 
 ---
 
@@ -34,7 +35,7 @@ After finishing the courses, stitch the skills together into **genuinely product
 | Project | What it is | Status |
 |---------|-----------|--------|
 | 📚 [Enterprise Knowledge Base QA](portfolio-projects/knowledge-base-qa/) | Production RAG: hybrid retrieval + Zhipu rerank + anti-hallucination citations + ragas evaluation. **Upgraded to ops-ready v2 in ops-lessons:** structured logging / Langfuse tracing / online eval loop + API-key auth & rate limiting + injection-defense guardrails + an MCP Server (callable by Agents) + semantic caching / load testing / cost-aware model selection. | ✅ Ops-ready |
-| 🔬 [AI Research Assistant](portfolio-projects/research-assistant/) | A multi-agent parallel research system: real web search + review loop + multi-model cost optimization + SSE streaming + SqliteSaver persistence + FastAPI service + Docker deploy. **Gains MCP access in ops-lessons L09** (internal + web dual sources). **Upgraded to Deep Research Agent v2 in frontier-lessons:** agent memory (episodic / semantic layered) + reflective dual-channel reviewer (conflict correction) + CodeAct code interpreter (reproducible numbers) + progressive Skills loading + task ledger (cross-session incremental briefings) + trajectory evaluation (mechanism gains quantified). | ✅ Deep v2 |
+| 🔬 [AI Research Assistant](portfolio-projects/research-assistant/) | A multi-agent parallel research system: real web search + review loop + multi-model cost optimization + SSE streaming + SqliteSaver persistence + FastAPI service + Docker deploy. **Gains MCP access in ops-lessons L09** (internal + web dual sources). **Upgraded to Deep Research Agent v2 in frontier-lessons:** agent memory (episodic / semantic layered) + reflective dual-channel reviewer (conflict correction) + CodeAct code interpreter (reproducible numbers) + progressive Skills loading + task ledger (cross-session incremental briefings) + trajectory evaluation (mechanism gains quantified). **Grows "hands" in gui-agent-lessons:** browser_tool evidence gathering (detail pages / pagination / evidence chains with URL + access time) + a security layer (domain allowlist / sensitive-action confirmation / injection scanning, on by default) + reliability (loop detection) + a local mini-benchmark. | ✅ Browses the web |
 
 > These are **production-grade landings** of the course skills—not demos, but AI application services you can deploy directly, handle real traffic, and tell a complete ops story with.
 > The two projects are wired together via the MCP standard protocol (see [ops-lessons L09](ops-lessons/09_mcp_client/)).
@@ -169,6 +170,30 @@ The first five courses teach **converged knowledge** (how to chunk for RAG, how 
 
 ---
 
+## 🖥️ Course 7: GUI Agent / Computer Use (13 lessons)
+
+The first six courses grew research-assistant into a deep agent that **thinks**—but it only has a brain, no hands: its sole channel to the world is search snippets. This course teaches a **frontier that is still unconverged in 2025–2026**: letting the agent operate a browser directly (open pages, click, paginate, extract, download), growing research-assistant a pair of hands that are **steady, safe, and measurable**. The style continues Course 6: READMEs lay out "the three schools of thought (text / vision / dedicated models), their trade-offs, and why we pick X…"; the code is "hand-write the core mechanism + a design experiment to test whether it helps." All changes land on research-assistant; `enable_browser` defaults to off, and all 123 tests stay green.
+
+| # | Lesson | You'll learn |
+|---|--------|--------------|
+| 00 | [Landscape & baseline](gui-agent-lessons/00_overview/) | Map of the three schools + WebArena/SeeAct/OSWorld primer + hard-task definition + run the bare baseline (what search snippets can't get you) |
+| 01 | [Playwright foundations](gui-agent-lessons/01_playwright/) | Deterministic BrowserSession control (auto-wait / timeout fallback / context manager) + slow-load & popup pages |
+| 02 | [Observation space](gui-agent-lessons/02_observation/) | page_to_obs with three page representations (raw HTML / numbered element list / plain text) + token comparison (9x savings) |
+| 03 | [Action space](gui-agent-lessons/03_action/) | Constrained action DSL (click/type/scroll/back/finish) + parse & validate + structured error feedback for illegal actions |
+| 04 | [Minimal GUI Agent](gui-agent-lessons/04_text_agent/) | observe→think→act loop + sliding-window context trimming + mock-LLM zero-API run |
+| 05 | [Vision route](gui-agent-lessons/05_vision/) | SoM-annotated screenshots into glm-4v-plus + text/vision/hybrid same-task comparison (tokens / success rate) |
+| 06 | [Reliability engineering](gui-agent-lessons/06_reliability/) | Failure-mode checklist + loop detection (observation hashing) + strategy switching + tricky-page before/after |
+| 07 | [Web injection offense & defense](gui-agent-lessons/07_injection/) | GUI injection is an order of magnitude worse than RAG (doing wrong vs saying wrong) + action-layer defense (allowlist / sensitive-action confirmation / injection scanning) |
+| 08 | [Evaluation mini-benchmark](gui-agent-lessons/08_benchmark/) | The WebArena idea: self-hosted local task set + functional acceptance + two-layer eval with the trajectory evaluator |
+| 09 | [Landing: growing "hands"](gui-agent-lessons/09_browser_tool/) | browser_tool.py wired into researcher (async + security on by default + fallback chain + 17 tests) |
+| 10 | [Deep browsing & evidence chains](gui-agent-lessons/10_evidence/) | deep_browse multi-step evidence gathering + evidence chains (URL + access time + snapshot) + revisitable report citations |
+| 11 | [Capstone](gui-agent-lessons/11_capstone/) | A web-browsing Deep Research Agent: four layers in concert + architecture doc + gains table (success rate 75%→100%) |
+| 12 | [Frontier tracking](gui-agent-lessons/12_frontier/) | Dedicated models vs general VLM + scaffolding: a three-axis framework + a minimal SoM-ablation repro |
+
+> All **13 lessons** done 🎉. **Two through-lines:** ① an evaluation main line (L00 bare baseline → L08 mini-benchmark → L11 gains table quantifying every mechanism); ② an observation–action interface main line (L02 observation space → L03 action DSL → L04 loop closure—the context-engineering theme extended to GUI). Each lesson's README has a "schools of thought" section + at least one "design experiment to validate" exercise. Landing adds 19 browser tests to research-assistant (123 total, all green); `enable_browser` defaults to off with intact fallback paths.
+
+---
+
 ## 🚀 Quick Start (5 steps)
 
 ```bash
@@ -198,8 +223,8 @@ Once it runs, open the [Lesson 01 exercise](rag-lessons/01_getting_started/exerc
 ```
 RAG-test/
 ├── README.md                  ← Course index (Chinese)
-├── README.en.md               ← You are here: six courses + portfolio overview (English)
-├── requirements.txt           ← Dependencies (shared across all six courses)
+├── README.en.md               ← You are here: seven courses + portfolio overview (English)
+├── requirements.txt           ← Dependencies (shared across all seven courses)
 ├── .env.example               ← API key config template
 ├── data/sample_docs/          ← Sample docs for exercises (shared across courses)
 ├── rag-lessons/               ← Course 1: Hand-written RAG (9 lessons, done)
@@ -208,7 +233,8 @@ RAG-test/
 ├── workflow-lessons/          ← Course 4: Workflow & Multi-Agent Orchestration (9 lessons, done)
 ├── ops-lessons/               ← Course 5: LLMOps in Production (13 lessons, done)
 ├── frontier-lessons/          ← Course 6: Agent Frontiers (13 lessons, done)
-├── portfolio-projects/        ← 🚀 Production-grade portfolio projects (landings after the courses; main battleground for ops/frontier)
+├── gui-agent-lessons/         ← Course 7: GUI Agent / Computer Use (13 lessons, done)
+├── portfolio-projects/        ← 🚀 Production-grade portfolio projects (landings after the courses; main battleground for ops/frontier/gui)
 │   ├── knowledge-base-qa/     ←   Enterprise KB QA (RAG, ops-ready v2)
 │   └── research-assistant/    ←   AI Research Assistant (multi-agent + FastAPI + Docker)
 └── docs/                      ← Design docs and implementation plans
