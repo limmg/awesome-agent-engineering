@@ -142,6 +142,50 @@ async def feedback(req: FeedbackRequest) -> FeedbackResponse:
     return FeedbackResponse(status="ok", enqueued=enqueued)
 
 
+# ── 语音入口（doc-intelligence L07）：enable_voice=on 时才挂 ──
+@app.post("/api/ask_voice")
+async def ask_voice(file: UploadFile):
+    """语音问答：上传提问音频 → ASR → stream_ask → TTS 返回答案音频。
+
+    enable_voice=off 时返 404（端点不生效，行为同升级前）。
+    管线：ASR(faster-whisper) → 检索/生成(kb-qa 主链路) → TTS(edge-tts)。
+    语音是入口不是核心——RAG 主链路一行没改。
+    """
+    if not settings.enable_voice:
+        raise HTTPException(404, "语音入口未启用（配 ENABLE_VOICE=true）")
+
+    import tempfile
+    from kb_qa.voice import transcribe, synthesize
+    from kb_qa.service import stream_ask
+
+    # ① 存上传的音频
+    audio_bytes = await file.read()
+    suffix = Path(file.filename or "question.mp3").suffix or ".mp3"
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+        tmp.write(audio_bytes)
+        tmp_path = tmp.name
+
+    # ② ASR → 文字
+    question, asr_time = transcribe(tmp_path)
+
+    # ③ 走主链路拿答案（收集 stream_ask 的 token）
+    answer_parts = []
+    async for event in stream_ask(question, thread_id=f"voice-{file.filename}"):
+        if event.get("event") == "token":
+            answer_parts.append(json.loads(event["data"])["content"])
+        elif event.get("event") == "done":
+            break
+    answer = "".join(answer_parts) or "(无答案)"
+
+    # ④ TTS → 音频
+    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
+        out_path = tmp.name
+    await synthesize(answer, out_path)
+
+    return FileResponse(out_path, media_type="audio/mpeg",
+                        headers={"X-Question": question, "X-Answer": answer[:200]})
+
+
 @app.get("/")
 async def index():
     index_html = _STATIC / "index.html"

@@ -38,5 +38,7 @@ data/multimodal_docs/_chart_*.png
 portfolio-projects/knowledge-base-qa/vision_cache/
 # 多模态：引用溯源的区域裁剪图（每台机器按需生成）
 data/multimodal_docs/clips/
+# 语音入口：L07 的样例音频（每台机器自己生成）
+data/multimodal_docs/voice_samples/
 *.db
 *.db-journal
