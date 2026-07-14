@@ -2,17 +2,17 @@
 
 > [中文](README.md) | **English**
 
-A hands-on, **learn-from-zero-to-mastery** course for building large language model applications, covering seven tracks: **RAG · Agents · Framework Engineering · Multi-Agent Orchestration · LLMOps · Agent Frontiers · GUI Agents / Computer Use**.
+A hands-on, **learn-from-zero-to-mastery** course for building large language model applications, covering eight tracks: **RAG · Agents · Framework Engineering · Multi-Agent Orchestration · LLMOps · Multimodal Document Intelligence · Agent Frontiers · GUI Agents / Computer Use**.
 
-Designed for **developers who know Python but are new to LLMs**, it pairs runnable code with principle walkthroughs—taking you step by step from hand-written fundamentals to framework implementations, then to multi-agent architectures, and finally into the frontier of agent capabilities.
+Designed for **developers who know Python but are new to LLMs**, it pairs runnable code with principle walkthroughs—taking you step by step from hand-written fundamentals to framework implementations, then to multi-agent architectures, then through multimodal document intelligence and agent frontiers, and finally into the last mile of "letting agents operate the web."
 
 > **Stack:** Zhipu GLM-4 + embedding-3 · Chroma (local vector DB) · LangChain + LangGraph · CrewAI · AutoGen · Python
 
 ---
 
-## 🗺️ The Seven Courses at a Glance
+## 🗺️ The Eight Courses at a Glance
 
-This workspace holds **seven progressive courses**. Recommended order:
+This workspace holds **eight progressive courses**. Recommended order:
 
 | Course | What you learn | Status |
 |--------|----------------|--------|
@@ -21,10 +21,11 @@ This workspace holds **seven progressive courses**. Recommended order:
 | 🔧 [Framework Engineering](framework-lessons/) | LangChain + LangGraph engineering (translate hand-written principles into frameworks; each lesson compares "hand-written vs framework") | ✅ 9/9 done |
 | 🔀 [Workflow & Multi-Agent Orchestration](workflow-lessons/) | Multi-agent collaboration architectures (supervisor / swarm / subgraphs / parallel / shared state / multi-model; side-by-side comparison across three frameworks) | ✅ 9/9 done |
 | 🛡️ [LLMOps in Production](ops-lessons/) | After launch: observability (logging / tracing / online eval) → security (auth & rate limiting / injection offense & defense / guardrails) → MCP integration → performance & cost (caching / load testing / model selection). Take the portfolio projects from "works" to "ops-ready" | ✅ 13/13 done |
+| 📄 [Multimodal Document Intelligence](doc-intelligence-lessons/) | Make the knowledge base eat scans / tables / charts: layout parsing → table structuring → OCR → chart understanding → multimodal retrieval → citation provenance → voice entry → evaluation gains table. Upgrade kb-qa from "text-only" to "multimodal document intelligence v3" with citations traceable to page + region | ✅ 10/10 done |
 | 🧠 [Agent Frontiers](frontier-lessons/) | Agent memory / reflection / Code Agents / trajectory eval / context engineering / long-horizon tasks—teaching not-yet-converged frontiers, growing research-assistant into a cross-session Deep Research Agent v2. **Every lesson has a schools-of-thought comparison + design experiments that validate the gains** | ✅ 13/13 done |
 | 🖥️ [GUI Agent / Computer Use](gui-agent-lessons/) | From "can search" to "can browse": Playwright control layer → observation space → action DSL → text/vision/hybrid routes → reliability → web-injection offense & defense → a local, reproducible mini-benchmark → landing on research-assistant so it grows "hands" → evidence chains → capstone. A not-yet-converged frontier: three schools of thought (text / vision / dedicated models) with trade-offs + a SoM ablation experiment | ✅ 13/13 done |
 
-> **Learning path:** RAG first (understand retrieval) → Agents (autonomous decision-making) → Framework Engineering (productionize) → Multi-Agent Orchestration (architect track) → LLMOps (ops-ready) → Agent Frontiers (let agents evolve) → GUI Agents (let agents operate the web).
+> **Learning path:** RAG first (understand retrieval) → Agents (autonomous decision-making) → Framework Engineering (productionize) → Multi-Agent Orchestration (architect track) → LLMOps (ops-ready) → Multimodal Document Intelligence (let the KB eat scans / tables / charts) → Agent Frontiers (let agents evolve) → GUI Agents (let agents operate the web).
 
 ---
 
@@ -34,7 +35,7 @@ After finishing the courses, stitch the skills together into **genuinely product
 
 | Project | What it is | Status |
 |---------|-----------|--------|
-| 📚 [Enterprise Knowledge Base QA](portfolio-projects/knowledge-base-qa/) | Production RAG: hybrid retrieval + Zhipu rerank + anti-hallucination citations + ragas evaluation. **Upgraded to ops-ready v2 in ops-lessons:** structured logging / Langfuse tracing / online eval loop + API-key auth & rate limiting + injection-defense guardrails + an MCP Server (callable by Agents) + semantic caching / load testing / cost-aware model selection. | ✅ Ops-ready |
+| 📚 [Enterprise Knowledge Base QA](portfolio-projects/knowledge-base-qa/) | Production RAG: hybrid retrieval + Zhipu rerank + anti-hallucination citations + ragas evaluation. **Upgraded to ops-ready v2 in ops-lessons:** structured logging / Langfuse tracing / online eval loop + API-key auth & rate limiting + injection-defense guardrails + an MCP Server (callable by Agents) + semantic caching / load testing / cost-aware model selection. **Upgraded to multimodal document intelligence v3 in doc-intelligence-lessons:** layout-aware parsing (scan / table / chart classification routing) + confidence-routed OCR + VLM two-stage chart understanding + description-index multimodal retrieval + page+region citation provenance + voice entry. | ✅ Multimodal v3 |
 | 🔬 [AI Research Assistant](portfolio-projects/research-assistant/) | A multi-agent parallel research system: real web search + review loop + multi-model cost optimization + SSE streaming + SqliteSaver persistence + FastAPI service + Docker deploy. **Gains MCP access in ops-lessons L09** (internal + web dual sources). **Upgraded to Deep Research Agent v2 in frontier-lessons:** agent memory (episodic / semantic layered) + reflective dual-channel reviewer (conflict correction) + CodeAct code interpreter (reproducible numbers) + progressive Skills loading + task ledger (cross-session incremental briefings) + trajectory evaluation (mechanism gains quantified). **Grows "hands" in gui-agent-lessons:** browser_tool evidence gathering (detail pages / pagination / evidence chains with URL + access time) + a security layer (domain allowlist / sensitive-action confirmation / injection scanning, on by default) + reliability (loop detection) + a local mini-benchmark. | ✅ Browses the web |
 
 > These are **production-grade landings** of the course skills—not demos, but AI application services you can deploy directly, handle real traffic, and tell a complete ops story with.
@@ -146,9 +147,30 @@ The first four courses teach you to **build** an AI app; this one teaches you to
 
 ---
 
-## 🧠 Course 6: Agent Frontiers (13 lessons)
+## 📄 Course 6: Multimodal Document Intelligence (10 lessons)
 
-The first five courses teach **converged knowledge** (how to chunk for RAG, how to write ReAct). This course teaches **not-yet-converged frontiers**—agent memory, reflection, Code Agents, trajectory evaluation, context engineering—where the industry has no standard answer. So the style changes: the README doesn't lecture "the standard way," it lays out "which schools of thought exist, what the trade-offs are, and why we picked X…"; the code is "hand-write the core mechanism + a design experiment to test whether it helps." All changes land on **research-assistant**, growing it from a one-shot "search → write report" system into a **cross-session Deep Research Agent v2**. Six modules:
+The first five courses built a RAG pipeline that only eats "clean plain text"—but real enterprise knowledge bases are full of scans, tables, and charts, which a text-only pipeline is blind to. This course teaches **converged engineering knowledge** (document parsing / OCR / table handling have mature industry practices), upgrading kb-qa from "text-only" to a "multimodal document intelligence system v3 that eats scans / tables / charts with citations traceable to page + region." The tone aligns with the ops course (standard practices + trade-offs); every lesson has a "## approach comparison" section. Two through-lines: ① cost-accuracy (every multimodal decision trades cost for accuracy); ② provenance (citations upgrade from chunk text to doc name + page + region).
+
+| # | Lesson | What you learn |
+|---|--------|----------------|
+| 00 | [Overview & baseline](doc-intelligence-lessons/00_baseline/) | Real enterprise doc composition + quantifying the text-RAG ceiling (scan/table/chart questions at 0%) + poison doc set + bare baseline |
+| 01 | [PDF anatomy & layout parsing](doc-intelligence-lessons/01_pdf_layout/) | PDF three-layer structure + a layout-aware parser (Element with type and bbox) + classification routing |
+| 02 | [Tables: from serial text to structured](doc-intelligence-lessons/02_table/) | pdfplumber extraction + a markdown/HTML/serial three-representation comparison experiment + whole-table chunking with header redundancy |
+| 03 | [Scans: three OCR routes](doc-intelligence-lessons/03_ocr/) | Local RapidOCR vs VLM direct read vs confidence-routed hybrid (a textbook cost-accuracy case) |
+| 04 | [Charts & image understanding](doc-intelligence-lessons/04_chart_vision/) | glm-4v-plus two-stage (description cache for indexing + live image read for answering) + hash dedup |
+| 05 | [Multimodal retrieval](doc-intelligence-lessons/05_multimodal_retrieval/) | Description indexing makes charts searchable + element_type routing + CLIP dual-tower comparison |
+| 06 | [Citation provenance upgrade](doc-intelligence-lessons/06_citation/) | Citations upgrade from chunk text to page + region (bbox) + region clip images + credibility trilogy step 3 |
+| 07 | [Voice entry (exploratory)](doc-intelligence-lessons/07_voice/) | ASR → kb-qa → TTS full pipeline + latency breakdown (voice is an entry point, not the core) |
+| 08 | [Multimodal evaluation: gains table](doc-intelligence-lessons/08_evaluation/) | Per-mechanism switch matrix + anti-regression control + ragas multimodal blind spot + ingest cost column |
+| 09 | [Capstone: v3 + renumbering](doc-intelligence-lessons/09_capstone/) | All mechanisms协同 on the hard task + kb-qa v3 finalization + repo-wide course renumbering |
+
+> All **10 lessons** done 🎉. **Two through-lines:** ① cost-accuracy (VLM direct read is expensive but strong, local OCR is cheap but brittle—classification routing is the engineering answer); ② provenance (citations upgrade from chunk text to doc name + page + region, the third step of the credibility trilogy). All new mechanisms default off (`enable_multimodal_ingest` etc.), existing tests stay green, every lesson has a "## approach comparison" + at least one "design experiment" exercise.
+
+---
+
+## 🧠 Course 7: Agent Frontiers (13 lessons)
+
+The first six courses teach **converged knowledge** (how to chunk for RAG, how to write ReAct). This course teaches **not-yet-converged frontiers**—agent memory, reflection, Code Agents, trajectory evaluation, context engineering—where the industry has no standard answer. So the style changes: the README doesn't lecture "the standard way," it lays out "which schools of thought exist, what the trade-offs are, and why we picked X…"; the code is "hand-write the core mechanism + a design experiment to test whether it helps." All changes land on **research-assistant**, growing it from a one-shot "search → write report" system into a **cross-session Deep Research Agent v2**. Six modules:
 
 | # | Lesson | You'll learn |
 |---|--------|--------------|
@@ -170,9 +192,9 @@ The first five courses teach **converged knowledge** (how to chunk for RAG, how 
 
 ---
 
-## 🖥️ Course 7: GUI Agent / Computer Use (13 lessons)
+## 🖥️ Course 8: GUI Agent / Computer Use (13 lessons)
 
-The first six courses grew research-assistant into a deep agent that **thinks**—but it only has a brain, no hands: its sole channel to the world is search snippets. This course teaches a **frontier that is still unconverged in 2025–2026**: letting the agent operate a browser directly (open pages, click, paginate, extract, download), growing research-assistant a pair of hands that are **steady, safe, and measurable**. The style continues Course 6: READMEs lay out "the three schools of thought (text / vision / dedicated models), their trade-offs, and why we pick X…"; the code is "hand-write the core mechanism + a design experiment to test whether it helps." All changes land on research-assistant; `enable_browser` defaults to off, and all 123 tests stay green.
+The first seven courses grew research-assistant into a deep agent that **thinks**—but it only has a brain, no hands: its sole channel to the world is search snippets. This course teaches a **frontier that is still unconverged in 2025–2026**: letting the agent operate a browser directly (open pages, click, paginate, extract, download), growing research-assistant a pair of hands that are **steady, safe, and measurable**. The style continues Course 7: READMEs lay out "the three schools of thought (text / vision / dedicated models), their trade-offs, and why we pick X…"; the code is "hand-write the core mechanism + a design experiment to test whether it helps." All changes land on research-assistant; `enable_browser` defaults to off, and all 123 tests stay green.
 
 | # | Lesson | You'll learn |
 |---|--------|--------------|
@@ -223,19 +245,21 @@ Once it runs, open the [Lesson 01 exercise](rag-lessons/01_getting_started/exerc
 ```
 RAG-test/
 ├── README.md                  ← Course index (Chinese)
-├── README.en.md               ← You are here: seven courses + portfolio overview (English)
-├── requirements.txt           ← Dependencies (shared across all seven courses)
+├── README.en.md               ← You are here: eight courses + portfolio overview (English)
+├── requirements.txt           ← Dependencies (shared across all eight courses)
 ├── .env.example               ← API key config template
 ├── data/sample_docs/          ← Sample docs for exercises (shared across courses)
+├── data/multimodal_docs/      ← Multimodal course poison doc set (scan/table/chart PDF + golden questions)
 ├── rag-lessons/               ← Course 1: Hand-written RAG (9 lessons, done)
 ├── agent-lessons/             ← Course 2: Hand-written Agents (9 lessons, done)
 ├── framework-lessons/         ← Course 3: Framework Engineering (9 lessons, done)
 ├── workflow-lessons/          ← Course 4: Workflow & Multi-Agent Orchestration (9 lessons, done)
 ├── ops-lessons/               ← Course 5: LLMOps in Production (13 lessons, done)
-├── frontier-lessons/          ← Course 6: Agent Frontiers (13 lessons, done)
-├── gui-agent-lessons/         ← Course 7: GUI Agent / Computer Use (13 lessons, done)
-├── portfolio-projects/        ← 🚀 Production-grade portfolio projects (landings after the courses; main battleground for ops/frontier/gui)
-│   ├── knowledge-base-qa/     ←   Enterprise KB QA (RAG, ops-ready v2)
+├── doc-intelligence-lessons/  ← Course 6: Multimodal Document Intelligence (10 lessons, done)
+├── frontier-lessons/          ← Course 7: Agent Frontiers (13 lessons, done)
+├── gui-agent-lessons/         ← Course 8: GUI Agent / Computer Use (13 lessons, done)
+├── portfolio-projects/        ← 🚀 Production-grade portfolio projects (landings after the courses; main battleground for ops/docint/frontier/gui)
+│   ├── knowledge-base-qa/     ←   Enterprise KB QA (RAG, multimodal document intelligence v3)
 │   └── research-assistant/    ←   AI Research Assistant (multi-agent + FastAPI + Docker)
 └── docs/                      ← Design docs and implementation plans
 ```

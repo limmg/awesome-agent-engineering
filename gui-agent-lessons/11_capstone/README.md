@@ -130,7 +130,7 @@ ENABLE_BROWSER=true ENABLE_MEMORY=true ENABLE_CODE_INTERPRETER=true ...
 | `docs/browser-agent.md` | 架构文档（四层图 + 数据流 + 降级路径 + 收益表） |
 | research-assistant README | 加「会上网的研究智能体（GUI Agent）」章节 |
 | `gui-agent-lessons/11_capstone/code.py` | 跑最终收益表（汇总 L00-L10 数字） |
-| 根 README | 课程七一行 + 逐课表 |
+| 根 README | 课程八一行 + 逐课表 |
 
 ### 验证
 

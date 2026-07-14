@@ -2,16 +2,16 @@
 
 > **中文** | [English](README.en.md)
 
-这是一套**从零开始、系统掌握大模型应用开发**的实战课程，覆盖 **RAG、Agent、框架工程化、多智能体编排、LLMOps 生产运维、智能体前沿、GUI Agent** 七大方向。
-面向**会 Python 但刚接触大模型**的开发者，用可运行的代码 + 原理讲解，一步步从原理手写到框架落地，再到多 Agent 协作架构，最后深入 Agent 前沿能力与「让 Agent 上网操作页面」的最后一公里。
+这是一套**从零开始、系统掌握大模型应用开发**的实战课程，覆盖 **RAG、Agent、框架工程化、多智能体编排、LLMOps 生产运维、多模态文档智能、智能体前沿、GUI Agent** 八大方向。
+面向**会 Python 但刚接触大模型**的开发者，用可运行的代码 + 原理讲解，一步步从原理手写到框架落地，再到多 Agent 协作架构，再到多模态文档智能与 Agent 前沿能力，最后深入「让 Agent 上网操作页面」的最后一公里。
 
 > 技术栈：智谱 GLM-4 + embedding-3 · Chroma 本地向量库 · LangChain + LangGraph · CrewAI · AutoGen · Python
 
 ---
 
-## 🗺️ 七门课程总览
+## 🗺️ 八门课程总览
 
-本工作区包含**七门递进课程**，建议按顺序学：
+本工作区包含**八门递进课程**，建议按顺序学：
 
 | 课程 | 内容 | 状态 |
 |------|------|------|
@@ -20,10 +20,11 @@
 | 🔧 [框架进阶课程](framework-lessons/) | LangChain + LangGraph 工程化（把手写原理翻译成框架，每课做"手写版 vs 框架版"对比）| ✅ 9/9 完成 |
 | 🔀 [工作流与多智能体编排](workflow-lessons/) | 多 Agent 协作架构（supervisor/swarm/子图/并行/共享态/多模型，三框架横向对比）| ✅ 9/9 完成 |
 | 🛡️ [LLMOps 生产运维](ops-lessons/) | 上线之后：可观测性（日志/追踪/线上评估）→ 安全（鉴权限流/注入攻防/守护栏）→ MCP 集成 → 性能成本（缓存/压测/选型）。把作品集项目从「能跑」推进到「运维就绪」| ✅ 13/13 完成 |
+| 📄 [多模态文档智能](doc-intelligence-lessons/) | 让知识库能吃扫描件/表格/图表：版面解析→表格结构化→OCR→图表理解→多模态检索→引用溯源→语音入口→评估收益表。把 kb-qa 从「只吃纯文本」升级为「多模态文档智能 v3」，引用可回溯到页码+区域 | ✅ 10/10 完成 |
 | 🧠 [智能体前沿](frontier-lessons/) | Agent 记忆/反思/Code Agent/轨迹评估/上下文工程/长任务——教未收敛的前沿，把 research-assistant 养成跨会话进化的深度智能体（Deep Research Agent v2）。**每课有流派对比 + 设计实验验证收益** | ✅ 13/13 完成 |
 | 🖥️ [GUI Agent / Computer Use](gui-agent-lessons/) | 让 Agent 从「会搜索」到「会上网」：Playwright 控制层→观察空间→行动 DSL→文本/视觉/混合三路线→可靠性→网页注入攻防→本地 mini-benchmark→落地 research-assistant 长出「手」→证据链→毕业整合。未收敛前沿，三大流派（文本/视觉/专用模型）取舍 + SoM 消融实验 | ✅ 13/13 完成 |
 
-> **学习路径**：先学 RAG（懂检索原理）→ 再学 Agent（懂自主决策）→ 再学框架进阶（工程化落地）→ 再学多智能体编排（架构师进阶）→ 再学 LLMOps（运维就绪）→ 再学智能体前沿（让 Agent 自主进化）→ 最后学 GUI Agent（让 Agent 会上网操作页面）。
+> **学习路径**：先学 RAG（懂检索原理）→ 再学 Agent（懂自主决策）→ 再学框架进阶（工程化落地）→ 再学多智能体编排（架构师进阶）→ 再学 LLMOps（运维就绪）→ 再学多模态文档智能（让知识库吃扫描件/表格/图表）→ 再学智能体前沿（让 Agent 自主进化）→ 最后学 GUI Agent（让 Agent 会上网操作页面）。
 
 ---
 
@@ -33,7 +34,7 @@
 
 | 项目 | 内容 | 状态 |
 |------|------|------|
-| 📚 [企业知识库问答系统](portfolio-projects/knowledge-base-qa/) | 生产级 RAG：混合检索 + 智谱 rerank + 防幻觉引用 + ragas 评估。**经 ops-lessons 升级为运维就绪 v2**：结构化日志/Langfuse 追踪/线上评估闭环 + key 鉴权限流 + 注入攻防守护栏 + MCP Server（可被 Agent 调用）+ 语义缓存/压测/成本选型。| ✅ 运维就绪 |
+| 📚 [企业知识库问答系统](portfolio-projects/knowledge-base-qa/) | 生产级 RAG：混合检索 + 智谱 rerank + 防幻觉引用 + ragas 评估。**经 ops-lessons 升级为运维就绪 v2**：结构化日志/Langfuse 追踪/线上评估闭环 + key 鉴权限流 + 注入攻防守护栏 + MCP Server（可被 Agent 调用）+ 语义缓存/压测/成本选型。**经 doc-intelligence-lessons 升级为多模态文档智能 v3**：版面感知解析（扫描件/表格/图表分类路由）+ 置信度 OCR + VLM 两段式图表理解 + 描述索引多模态检索 + 页码+区域引用溯源 + 语音入口。| ✅ 多模态 v3 |
 | 🔬 [AI 研究分析助手](portfolio-projects/research-assistant/) | 多智能体并行研究系统：真实联网搜索 + 审稿回路 + 多模型降本 + SSE 流式 + SqliteSaver 持久化 + FastAPI 服务化 + Docker 部署。**经 ops-lessons L09 接入 MCP**（内部+联网双源）。**经 frontier-lessons 升级为 Deep Research Agent v2**：Agent 记忆（情景/语义分层）+ 反思式双通道 reviewer（冲突修正）+ CodeAct 代码解释器（可复算）+ Skills 渐进式加载 + 任务账本（跨会话增量简报）+ 轨迹评估（机制收益量化）。**经 gui-agent-lessons 长出「手」**：browser_tool 浏览器取证（详情页/翻页/证据链 URL+访问时间）+ 安全层（域名 allowlist/敏感动作确认/注入扫描，默认开）+ 可靠性（循环检测）+ 本地 mini-benchmark。| ✅ 会上网 |
 
 > 这是课程能力的**生产级落地**——不是 demo，是能直接部署、能扛真实流量、能讲完整运维故事的 AI 应用服务。
@@ -146,9 +147,30 @@
 
 ---
 
-## 🧠 课程六：智能体前沿（共 13 节课）
+## 📄 课程六：多模态文档智能课程（共 10 节课）
 
-前五门课教的是**已收敛的知识**（RAG 怎么切、ReAct 怎么写），本课教的是**未收敛的前沿**——Agent 记忆、反思、Code Agent、轨迹评估、上下文工程，业界没有标准答案。因此课程风格变了：README 不讲「标准做法」，讲「有哪几种流派、取舍是什么、我们选 X 因为……」；代码是「手写核心机制 + 设计实验验证有没有用」。所有改动落到 **research-assistant**，把它从「搜索→写报告」的一次性系统养成**跨会话进化的深度研究智能体（Deep Research Agent v2）**。六个模块：
+前五门课的 RAG 管线只吃「干净的纯文本」，但真实企业知识库里扫描件、表格、图表占一大半——text-only 管线对它们全盲。本课教**收敛的工程知识**（文档解析/OCR/表格处理业界有成熟做法），把 kb-qa 从「只吃纯文本」升级为「能吃扫描件/表格/图表、引用可回溯到页码与区域的多模态文档智能系统 v3」。课程口吻对齐 ops（讲「标准做法 + 取舍」），每课有「## 方案对比」小节。两条贯穿主线：①成本-精度主线（多模态每个决策都是成本与精度的交换）；②溯源主线（引用从 chunk 文本升级到文档名+页码+区域）。
+
+| # | 课程 | 你会学到 |
+|---|------|----------|
+| 00 | [全景与基线](doc-intelligence-lessons/00_baseline/) | 企业文档真实构成 + 文本 RAG 天花板量化（扫描/表格/图表题 0%）+ 毒文档集 + 裸基线 |
+| 01 | [PDF 解剖与版面解析](doc-intelligence-lessons/01_pdf_layout/) | PDF 三层结构 + 版面感知解析器（Element 带类型和坐标）+ 分类路由 |
+| 02 | [表格：从串行文本到结构化](doc-intelligence-lessons/02_table/) | pdfplumber 抽取 + markdown/HTML/串行三种表示对照实验 + 整表成块表头冗余 |
+| 03 | [扫描件：OCR 三路线](doc-intelligence-lessons/03_ocr/) | 本地 RapidOCR vs VLM 直读 vs 置信度混合路由（成本-精度教科书案例） |
+| 04 | [图表与图片理解](doc-intelligence-lessons/04_chart_vision/) | glm-4v-plus 两段式（描述缓存做索引 + 现场看图作答）+ 哈希去重 |
+| 05 | [多模态检索](doc-intelligence-lessons/05_multimodal_retrieval/) | 描述索引让图表可搜 + element_type 路由 + CLIP 双塔对照 |
+| 06 | [引用溯源升级](doc-intelligence-lessons/06_citation/) | 引用从 chunk 文本升级到页码+区域（bbox）+ 区域裁剪图 + 可信度三部曲第三步 |
+| 07 | [语音入口（尝鲜）](doc-intelligence-lessons/07_voice/) | ASR→kb-qa→TTS 全链路 + 延迟拆解（语音是入口不是核心） |
+| 08 | [多模态评估：收益表](doc-intelligence-lessons/08_evaluation/) | 逐机制开关矩阵 + 防退化对照 + ragas 多模态盲区 + 入库成本列 |
+| 09 | [毕业整合：v3 + 重编号](doc-intelligence-lessons/09_capstone/) | 全机制协同跑通硬任务 + kb-qa v3 定稿 + 全仓课程重编号 |
+
+> 已完成全部 **10 节课** 🎉。**两条贯穿主线**：①成本-精度主线（VLM 直读贵而强、本地 OCR 便宜而脆，分类路由是工程答案）；②溯源主线（引用从 chunk 文本升级到文档名+页码+区域，可信度三部曲第三步）。所有新机制默认关闭（`enable_multimodal_ingest` 等），现有测试始终绿，每课有「## 方案对比」+ 至少一道「设计实验验证」练习。
+
+---
+
+## 🧠 课程七：智能体前沿（共 13 节课）
+
+前六门课教的是**已收敛的知识**（RAG 怎么切、ReAct 怎么写），本课教的是**未收敛的前沿**——Agent 记忆、反思、Code Agent、轨迹评估、上下文工程，业界没有标准答案。因此课程风格变了：README 不讲「标准做法」，讲「有哪几种流派、取舍是什么、我们选 X 因为……」；代码是「手写核心机制 + 设计实验验证有没有用」。所有改动落到 **research-assistant**，把它从「搜索→写报告」的一次性系统养成**跨会话进化的深度研究智能体（Deep Research Agent v2）**。六个模块：
 
 | # | 课程 | 你会学到 |
 |---|------|----------|
@@ -170,9 +192,9 @@
 
 ---
 
-## 🖥️ 课程七：GUI Agent / Computer Use 课程（共 13 节课）
+## 🖥️ 课程八：GUI Agent / Computer Use 课程（共 13 节课）
 
-前六门课把 research-assistant 养成了**会思考**的深度智能体，但它只有脑子没有手——「研究世界」的唯一渠道是搜索摘要。本课教 **2025–2026 仍未收敛的前沿**：让 Agent 直接操作浏览器完成任务（打开页面、点击、翻页、提取、下载），给 research-assistant 长出一双**稳、安全、可评估**的手。课程风格延续第六门课：README 不讲「标准做法」，讲「三大流派（文本/视觉/专用模型）取舍是什么、选 X 因为……」；代码是「手写核心机制 + 设计实验验证有没有用」。所有落地改动作用于 research-assistant，`enable_browser` 默认关，123 测试始终绿。
+前七门课把 research-assistant 养成了**会思考**的深度智能体，但它只有脑子没有手——「研究世界」的唯一渠道是搜索摘要。本课教 **2025–2026 仍未收敛的前沿**：让 Agent 直接操作浏览器完成任务（打开页面、点击、翻页、提取、下载），给 research-assistant 长出一双**稳、安全、可评估**的手。课程风格延续第七门课：README 不讲「标准做法」，讲「三大流派（文本/视觉/专用模型）取舍是什么、选 X 因为……」；代码是「手写核心机制 + 设计实验验证有没有用」。所有落地改动作用于 research-assistant，`enable_browser` 默认关，123 测试始终绿。
 
 | # | 课程 | 你会学到 |
 |---|------|---------|
@@ -222,19 +244,21 @@ python rag-lessons/01_getting_started/code.py
 
 ```
 RAG-test/
-├── README.md                  ← 你在这里：七门课程 + 作品集项目总览
-├── requirements.txt           ← 依赖（七门课统一）
+├── README.md                  ← 你在这里：八门课程 + 作品集项目总览
+├── requirements.txt           ← 依赖（八门课统一）
 ├── .env.example               ← API Key 配置模板
-├── data/sample_docs/          ← 练习用的示例文档（七门课共用）
+├── data/sample_docs/          ← 练习用的示例文档（八门课共用）
+├── data/multimodal_docs/      ← 多模态课程毒文档集（扫描件/表格/图表 PDF + golden 题）
 ├── rag-lessons/               ← 课程一：RAG 手写（9 课，已完成）
 ├── agent-lessons/             ← 课程二：Agent 手写（9 课，已完成）
 ├── framework-lessons/         ← 课程三：框架进阶（9 课，已完成）
 ├── workflow-lessons/          ← 课程四：工作流与多智能体编排（9 课，已完成）
 ├── ops-lessons/               ← 课程五：LLMOps 生产运维（13 课，已完成）
-├── frontier-lessons/          ← 课程六：智能体前沿（13 课，已完成）
-├── gui-agent-lessons/         ← 课程七：GUI Agent / Computer Use（13 课，已完成）
-├── portfolio-projects/        ← 🚀 生产级作品集项目（学完课程后的落地，ops/frontier/gui 主战场）
-│   ├── knowledge-base-qa/     ←   企业知识库问答（RAG，运维就绪 v2）
+├── doc-intelligence-lessons/  ← 课程六：多模态文档智能（10 课，已完成）
+├── frontier-lessons/          ← 课程七：智能体前沿（13 课，已完成）
+├── gui-agent-lessons/         ← 课程八：GUI Agent / Computer Use（13 课，已完成）
+├── portfolio-projects/        ← 🚀 生产级作品集项目（学完课程后的落地，ops/docint/frontier/gui 主战场）
+│   ├── knowledge-base-qa/     ←   企业知识库问答（RAG，多模态文档智能 v3）
 │   └── research-assistant/    ←   AI 研究分析助手（多智能体 + FastAPI + Docker，会上网）
 └── docs/                      ← 设计文档与实现计划
 ```
