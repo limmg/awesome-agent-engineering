@@ -1,0 +1,325 @@
+{
+  "lesson": "L00 baseline",
+  "method": "PyMuPDF 文本层抽取 + 答案 token 是否出现在语料（关键词命中，非真 RAG）",
+  "honest_note": "mock 评分：无真实检索/生成，仅验证『答案信息是否进了语料池』。扫描/图表题的 token 不在文本层 → FAIL，正是要量化的天花板。",
+  "source_pdf": "data\\multimodal_docs\\company_briefing.pdf",
+  "pages_char_count": [
+    165,
+    194,
+    0,
+    170,
+    33,
+    169
+  ],
+  "corpus_total_chars": 736,
+  "by_category": {
+    "text": {
+      "total": 6,
+      "pass": 6,
+      "fail": 0,
+      "pass_rate": 1.0
+    },
+    "table": {
+      "total": 3,
+      "pass": 0,
+      "fail": 3,
+      "pass_rate": 0.0
+    },
+    "scan": {
+      "total": 4,
+      "pass": 0,
+      "fail": 4,
+      "pass_rate": 0.0
+    },
+    "chart": {
+      "total": 4,
+      "pass": 0,
+      "fail": 4,
+      "pass_rate": 0.0
+    }
+  },
+  "overall_pass_rate": 0.353,
+  "results": [
+    {
+      "id": "T01",
+      "category": "text",
+      "question": "云启科技成立于哪一年？",
+      "expected_answer": "2018 年",
+      "source_page": 1,
+      "page_text_chars": 165,
+      "answer_tokens": [
+        "2018"
+      ],
+      "found_in_corpus": [
+        "2018"
+      ],
+      "all_present": true,
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "id": "T02",
+      "category": "text",
+      "question": "公司总部位于哪里？",
+      "expected_answer": "上海张江高科技园区",
+      "source_page": 1,
+      "page_text_chars": 165,
+      "answer_tokens": [
+        "张江"
+      ],
+      "found_in_corpus": [
+        "张江"
+      ],
+      "all_present": true,
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "id": "T03",
+      "category": "text",
+      "question": "标准工作时间是什么？",
+      "expected_answer": "9:00 - 18:00，午休 1 小时",
+      "source_page": 2,
+      "page_text_chars": 194,
+      "answer_tokens": [
+        "9:00",
+        "18:00"
+      ],
+      "found_in_corpus": [
+        "9:00",
+        "18:00"
+      ],
+      "all_present": true,
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "id": "T04",
+      "category": "text",
+      "question": "入职满 3 年不满 5 年，每年有几天年假？",
+      "expected_answer": "每年 10 天年假",
+      "source_page": 2,
+      "page_text_chars": 194,
+      "answer_tokens": [
+        "10"
+      ],
+      "found_in_corpus": [
+        "10"
+      ],
+      "all_present": true,
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "id": "T05",
+      "category": "text",
+      "question": "新员工入职培训持续几个工作日？",
+      "expected_answer": "5 个工作日",
+      "source_page": 6,
+      "page_text_chars": 169,
+      "answer_tokens": [
+        "5"
+      ],
+      "found_in_corpus": [
+        "5"
+      ],
+      "all_present": true,
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "id": "T06",
+      "category": "text",
+      "question": "每年有几次晋升评审？分别在几月？",
+      "expected_answer": "每年 2 次，3 月和 9 月",
+      "source_page": 6,
+      "page_text_chars": 169,
+      "answer_tokens": [
+        "2 次",
+        "3 月",
+        "9 月"
+      ],
+      "found_in_corpus": [
+        "2 次",
+        "3 月",
+        "9 月"
+      ],
+      "all_present": true,
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "id": "TAB01",
+      "category": "table",
+      "question": "P5 职级的基本工资是多少？",
+      "expected_answer": "22000 元/月",
+      "source_page": 4,
+      "page_text_chars": 170,
+      "answer_tokens": [
+        "22000"
+      ],
+      "found_in_corpus": [
+        "22000"
+      ],
+      "all_present": true,
+      "verdict": "FAIL",
+      "note": "表格结构丢失：数字在但列对应被打散"
+    },
+    {
+      "id": "TAB02",
+      "category": "table",
+      "question": "P4 职级的岗位津贴是多少？",
+      "expected_answer": "4000 元/月",
+      "source_page": 4,
+      "page_text_chars": 170,
+      "answer_tokens": [
+        "4000"
+      ],
+      "found_in_corpus": [
+        "4000"
+      ],
+      "all_present": true,
+      "verdict": "FAIL",
+      "note": "表格结构丢失：数字在但列对应被打散"
+    },
+    {
+      "id": "TAB03",
+      "category": "table",
+      "question": "P6 职级的绩效系数范围是多少？",
+      "expected_answer": "1.1 - 1.6",
+      "source_page": 4,
+      "page_text_chars": 170,
+      "answer_tokens": [
+        "1.1",
+        "1.6"
+      ],
+      "found_in_corpus": [
+        "1.1",
+        "1.6"
+      ],
+      "all_present": true,
+      "verdict": "FAIL",
+      "note": "表格结构丢失：数字在但列对应被打散"
+    },
+    {
+      "id": "SCAN01",
+      "category": "scan",
+      "question": "试用期是几个月？",
+      "expected_answer": "3 个月",
+      "source_page": 3,
+      "page_text_chars": 0,
+      "answer_tokens": [
+        "3 个月"
+      ],
+      "found_in_corpus": [],
+      "all_present": false,
+      "verdict": "FAIL",
+      "note": ""
+    },
+    {
+      "id": "SCAN02",
+      "category": "scan",
+      "question": "竞业限制期是几年？",
+      "expected_answer": "2 年",
+      "source_page": 3,
+      "page_text_chars": 0,
+      "answer_tokens": [
+        "2 年"
+      ],
+      "found_in_corpus": [],
+      "all_present": false,
+      "verdict": "FAIL",
+      "note": ""
+    },
+    {
+      "id": "SCAN03",
+      "category": "scan",
+      "question": "违反保密义务的赔偿金额是多少？",
+      "expected_answer": "年薪的 3 倍",
+      "source_page": 3,
+      "page_text_chars": 0,
+      "answer_tokens": [
+        "3 倍"
+      ],
+      "found_in_corpus": [],
+      "all_present": false,
+      "verdict": "FAIL",
+      "note": ""
+    },
+    {
+      "id": "SCAN04",
+      "category": "scan",
+      "question": "离职需提前多少天书面通知？",
+      "expected_answer": "30 天",
+      "source_page": 3,
+      "page_text_chars": 0,
+      "answer_tokens": [
+        "30"
+      ],
+      "found_in_corpus": [],
+      "all_present": false,
+      "verdict": "FAIL",
+      "note": ""
+    },
+    {
+      "id": "CHT01",
+      "category": "chart",
+      "question": "Q1 的营收是多少万元？",
+      "expected_answer": "1800 万元",
+      "source_page": 5,
+      "page_text_chars": 33,
+      "answer_tokens": [
+        "1800"
+      ],
+      "found_in_corpus": [],
+      "all_present": false,
+      "verdict": "FAIL",
+      "note": ""
+    },
+    {
+      "id": "CHT02",
+      "category": "chart",
+      "question": "Q3 的营收是多少万元？",
+      "expected_answer": "2100 万元",
+      "source_page": 5,
+      "page_text_chars": 33,
+      "answer_tokens": [
+        "2100"
+      ],
+      "found_in_corpus": [],
+      "all_present": false,
+      "verdict": "FAIL",
+      "note": ""
+    },
+    {
+      "id": "CHT03",
+      "category": "chart",
+      "question": "Q4 的营收是多少万元？",
+      "expected_answer": "2900 万元",
+      "source_page": 5,
+      "page_text_chars": 33,
+      "answer_tokens": [
+        "2900"
+      ],
+      "found_in_corpus": [],
+      "all_present": false,
+      "verdict": "FAIL",
+      "note": ""
+    },
+    {
+      "id": "CHT04",
+      "category": "chart",
+      "question": "哪个季度的营收最高？",
+      "expected_answer": "Q4，2900 万元",
+      "source_page": 5,
+      "page_text_chars": 33,
+      "answer_tokens": [
+        "Q4"
+      ],
+      "found_in_corpus": [],
+      "all_present": false,
+      "verdict": "FAIL",
+      "note": ""
+    }
+  ]
+}

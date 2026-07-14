@@ -32,5 +32,7 @@ frontier-lessons/*/mem_rule/
 frontier-lessons/*/demo_*/
 # GUI Agent 截图中间产物（raw 截图忽略；som_demo.png 标注图存档例外，已跟踪）
 gui-agent-lessons/*/*_raw.png
+# 多模态文档智能：毒文档生成的中间图表（company_briefing.pdf 成品已跟踪，中间 png 忽略）
+data/multimodal_docs/_chart_*.png
 *.db
 *.db-journal
