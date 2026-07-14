@@ -146,10 +146,15 @@ async def stream_ask(
                 "source": d.metadata.get("source", "?"),
                 "section": d.metadata.get("section", ""),
                 "preview": d.page_content[:120],
+                # L05：多模态检索——sources 带 element_type/page，前端按类型展示
+                "element_type": d.metadata.get("element_type", "text"),
+                "page": d.metadata.get("page"),
             }
             for i, d in enumerate(docs, 1)
         ]
         yield _event("sources", sources_payload)
+
+        t0 = time.perf_counter()
 
         t0 = time.perf_counter()
         with trace_generation("answer", model=settings.answer_model) as gen:
