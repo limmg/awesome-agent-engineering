@@ -36,5 +36,7 @@ gui-agent-lessons/*/*_raw.png
 data/multimodal_docs/_chart_*.png
 # 多模态：VLM 图片描述缓存（按内容哈希，每台机器自己生成）
 portfolio-projects/knowledge-base-qa/vision_cache/
+# 多模态：引用溯源的区域裁剪图（每台机器按需生成）
+data/multimodal_docs/clips/
 *.db
 *.db-journal
