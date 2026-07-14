@@ -116,6 +116,21 @@ class Settings(BaseSettings):
         "embedding-3": {"input": 0.5,  "output": 0.0},
     }
 
+    # ── 多模态文档智能（doc-intelligence 课程）──────────────────
+    # 所有开关默认关闭：保证现状 79 个测试全绿，开关 off 时行为与升级前完全一致。
+    # 打开 enable_multimodal_ingest 后，ingest 才会对 PDF 走版面感知解析（L01）。
+    enable_multimodal_ingest: bool = False
+    # OCR 引擎（L03）：off=扫描页抽空（现状）/ rapidocr=本地 / vlm=glm-4v 直读 / hybrid=置信度路由
+    ocr_engine: str = "off"
+    # 表格表示格式（L02）：markdown=便宜通用 / html=保 rowspan/colspan 结构
+    table_format: str = "markdown"
+    # 图片描述（L04）：off=图片元素不入库 / 开=VLM 生成结构化描述做索引
+    enable_image_caption: bool = False
+    # 看图模型（L04）：glm-4v-plus 负责图表理解/扫描直读/图片描述
+    vision_model: str = "glm-4v-plus"
+    # 语音入口（L07）：off=不挂 /api/ask_voice 端点
+    enable_voice: bool = False
+
     @field_validator("api_keys", mode="after")
     @classmethod
     def _normalize_api_keys(cls, v: str) -> str:

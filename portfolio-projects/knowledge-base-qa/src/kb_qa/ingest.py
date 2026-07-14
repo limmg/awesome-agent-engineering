@@ -15,6 +15,7 @@ from pathlib import Path
 
 from langchain_chroma import Chroma
 from langchain_community.embeddings import ZhipuAIEmbeddings
+from langchain_core.documents import Document
 
 from .config import settings
 from .loader import file_md5, list_documents, load_and_split
@@ -70,13 +71,61 @@ def _add_in_batches(vs: Chroma, docs: list, ids: list[str]) -> None:
         vs.add_documents(docs[i : i + step], ids=ids[i : i + step])
 
 
+def _load_pdf_as_documents(path: Path) -> list[Document]:
+    """版面感知加载 PDF（doc-intelligence L01）。
+
+    把 doc_parser.parse_pdf 产出的 Element 流转成 LangChain Document：
+        text 元素  → 每个 block 一个 Document（content=文本）
+        table 元素 → 整表一个 Document（content 暂存串行文本，L02 升级结构化）
+        image 元素 → content 为空时跳过（L03 OCR / L04 描述才入）
+    所有 Document 带 page/element_type/bbox metadata（L06 引用溯源用），
+    以及和 md/txt 一致的 source/src_hash/chunk_idx（增量缓存/id 用）。
+    """
+    # 延迟导入：enable_multimodal_ingest=off 时不需要 PyMuPDF，保持现状依赖干净
+    from .doc_parser import parse_pdf
+
+    elements = parse_pdf(path)
+    fhash = file_md5(path)
+    docs: list[Document] = []
+    chunk_idx = 0
+    for el in elements:
+        # 图片元素内容为空时（OCR/描述未启用）不入库，避免空 chunk 污染向量库
+        if el.type == "image" and not el.content:
+            continue
+        docs.append(
+            Document(
+                page_content=el.content,
+                metadata={
+                    "source": path.name,
+                    "section": f"P{el.page}·{el.type}",  # 引用溯源展示「P3·table」
+                    "src_hash": fhash,
+                    "chunk_idx": chunk_idx,
+                    # 多模态字段（L06 引用溯源用；旧检索/生成不读这些，向后兼容）
+                    "page": el.page,
+                    "element_type": el.type,
+                    "bbox": ",".join(f"{v:.1f}" for v in el.bbox),
+                },
+            )
+        )
+        chunk_idx += 1
+    return docs
+
+
 def ingest_directory(docs_dir: str | Path | None = None, prune: bool = True) -> IngestReport:
-    """把目录下所有文档同步进向量库，返回统计报告。幂等：重复跑不产生变化。"""
+    """把目录下所有文档同步进向量库，返回统计报告。幂等：重复跑不产生变化。
+
+    enable_multimodal_ingest=off（默认）：只处理 .md/.txt，行为与升级前完全一致。
+    enable_multimodal_ingest=on：额外处理 .pdf，走版面感知解析（doc_parser）。
+    """
     docs_dir = Path(docs_dir or settings.docs_dir)
     vs = get_vectorstore()
     existing = _existing_hashes(vs)
 
     files = list_documents(docs_dir)
+    # 多模态开关打开时，额外纳入 PDF（现状 loader 只认 md/txt）
+    if settings.enable_multimodal_ingest:
+        pdf_files = sorted(p for p in docs_dir.iterdir() if p.suffix.lower() == ".pdf")
+        files = sorted(set(files) | set(pdf_files), key=lambda p: p.name)
     on_disk = {p.name for p in files}
 
     added: list[str] = []
@@ -96,7 +145,11 @@ def ingest_directory(docs_dir: str | Path | None = None, prune: bool = True) -> 
             # 文件改过：先清旧块，避免新旧版本混存
             vs._collection.delete(where={"source": fname})
 
-        chunks = load_and_split(path)
+        # PDF 走版面感知解析；md/txt 走老路（开关 off 时只有 md/txt）
+        if path.suffix.lower() == ".pdf" and settings.enable_multimodal_ingest:
+            chunks = _load_pdf_as_documents(path)
+        else:
+            chunks = load_and_split(path)
         ids = [f"{fname}:{fhash[:8]}:{c.metadata['chunk_idx']}" for c in chunks]
         _add_in_batches(vs, chunks, ids)
         added_chunks += len(chunks)
