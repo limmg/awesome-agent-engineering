@@ -1,0 +1,137 @@
+[
+  {
+    "id": "T01",
+    "category": "text",
+    "question": "云启科技成立于哪一年？",
+    "ground_truth": "云启科技成立于 2018 年。",
+    "answer_tokens": ["2018"],
+    "source_page": 1,
+    "source": "company_briefing.pdf"
+  },
+  {
+    "id": "T02",
+    "category": "text",
+    "question": "公司总部位于哪里？",
+    "ground_truth": "公司总部位于上海张江高科技园区。",
+    "answer_tokens": ["张江"],
+    "source_page": 1,
+    "source": "company_briefing.pdf"
+  },
+  {
+    "id": "T03",
+    "category": "text",
+    "question": "标准工作时间是什么？",
+    "ground_truth": "标准工作时间为 9:00-18:00，午休 1 小时。",
+    "answer_tokens": ["9:00", "18:00"],
+    "source_page": 2,
+    "source": "company_briefing.pdf"
+  },
+  {
+    "id": "T04",
+    "category": "text",
+    "question": "入职满 3 年不满 5 年，每年有几天年假？",
+    "ground_truth": "入职满 3 年不满 5 年，每年有 10 天年假。",
+    "answer_tokens": ["10"],
+    "source_page": 2,
+    "source": "company_briefing.pdf"
+  },
+  {
+    "id": "T05",
+    "category": "text",
+    "question": "新员工入职培训持续几个工作日？",
+    "ground_truth": "新员工入职培训持续 5 个工作日。",
+    "answer_tokens": ["5"],
+    "source_page": 6,
+    "source": "company_briefing.pdf"
+  },
+  {
+    "id": "TAB01",
+    "category": "table",
+    "question": "P5 职级的基本工资是多少？",
+    "ground_truth": "P5 职级的基本工资是 22000 元/月。",
+    "answer_tokens": ["22000"],
+    "source_page": 4,
+    "source": "company_briefing.pdf"
+  },
+  {
+    "id": "TAB02",
+    "category": "table",
+    "question": "P4 职级的岗位津贴是多少？",
+    "ground_truth": "P4 职级的岗位津贴是 4000 元/月。",
+    "answer_tokens": ["4000"],
+    "source_page": 4,
+    "source": "company_briefing.pdf"
+  },
+  {
+    "id": "TAB03",
+    "category": "table",
+    "question": "P6 职级的绩效系数范围是多少？",
+    "ground_truth": "P6 职级的绩效系数范围是 1.1 - 1.6。",
+    "answer_tokens": ["1.1", "1.6"],
+    "source_page": 4,
+    "source": "company_briefing.pdf"
+  },
+  {
+    "id": "SCAN01",
+    "category": "scan",
+    "question": "试用期是几个月？",
+    "ground_truth": "试用期是 3 个月。",
+    "answer_tokens": ["3 个月"],
+    "source_page": 3,
+    "source": "company_briefing.pdf"
+  },
+  {
+    "id": "SCAN02",
+    "category": "scan",
+    "question": "竞业限制期是几年？",
+    "ground_truth": "竞业限制期是 2 年。",
+    "answer_tokens": ["2 年"],
+    "source_page": 3,
+    "source": "company_briefing.pdf"
+  },
+  {
+    "id": "SCAN03",
+    "category": "scan",
+    "question": "违反保密义务的赔偿金额是多少？",
+    "ground_truth": "违反保密义务的赔偿金额是年薪的 3 倍。",
+    "answer_tokens": ["3 倍"],
+    "source_page": 3,
+    "source": "company_briefing.pdf"
+  },
+  {
+    "id": "CHT01",
+    "category": "chart",
+    "question": "Q1 的营收是多少万元？",
+    "ground_truth": "Q1 的营收是 1800 万元。",
+    "answer_tokens": ["1800"],
+    "source_page": 5,
+    "source": "company_briefing.pdf"
+  },
+  {
+    "id": "CHT02",
+    "category": "chart",
+    "question": "Q3 的营收是多少万元？",
+    "ground_truth": "Q3 的营收是 2100 万元。",
+    "answer_tokens": ["2100"],
+    "source_page": 5,
+    "source": "company_briefing.pdf"
+  },
+  {
+    "id": "CHT03",
+    "category": "chart",
+    "question": "Q4 的营收是多少万元？",
+    "ground_truth": "Q4 的营收是 2900 万元。",
+    "answer_tokens": ["2900"],
+    "source_page": 5,
+    "source": "company_briefing.pdf"
+  },
+  {
+    "id": "CHT04",
+    "category": "chart",
+    "question": "哪个季度的营收最高？",
+    "ground_truth": "Q4 的营收最高，为 2900 万元。",
+    "answer_tokens": ["Q4"],
+    "source_page": 5,
+    "source": "company_briefing.pdf"
+  }
+]
