@@ -13,7 +13,7 @@
 | 防幻觉 | 材料外拒答 prompt + 【材料N】引用溯源 + 低温 | faithfulness **0.848**，库外问题正确拒答 |
 | 增量入库 | 文件 MD5 缓存，新增/修改/删除三路径幂等 | 重复 ingest 零 embedding 调用 |
 | 多轮对话 | condense-question：追问先改写成独立问题再检索 | 「那企业版呢？」正确召回并回答 |
-| 生产化 | FastAPI + SSE 流式、Docker、pytest 17 项全 mock | `make test` 1.3s 全绿 |
+| 生产化 | FastAPI + SSE 流式、Docker、pytest 143 项（零 API 调用） | `make test` 23s 全绿 |
 
 ## 架构
 
@@ -123,7 +123,7 @@ make eval                     # 或 python eval/run_eval.py --modes rerank --lim
 ├── api/                 # FastAPI（upload / ask / health）
 ├── static/index.html    # 极简前端
 ├── eval/                # golden set + ragas runner + 诊断报告
-├── tests/               # pytest 17 项（全 mock 零 API 调用）
+├── tests/               # pytest 143 项（LLM 全 mock + OCR 本地真跑，零 API 调用）
 └── Dockerfile / docker-compose.yml / Makefile
 ```
 
@@ -159,3 +159,48 @@ make eval                     # 或 python eval/run_eval.py --modes rerank --lim
 > 完整的生产上线检查清单见 [ops-lessons/L13](../../ops-lessons/13_capstone/production_readiness_checklist.md)（36 项，每项指向代码证据）。
 >
 > **一句话**：能回答「上线之后怎么知道好不好、怎么防攻击、怎么被集成、怎么控成本」——这是「做过 demo」和「运维过生产 AI 服务」的分界线。
+
+## 多模态文档智能（v3）
+
+本项目经 [doc-intelligence-lessons](../../doc-intelligence-lessons/)（多模态文档智能课程，10 课）升级，从「只能吃纯文本」推进到「能吃扫描件/表格/图表、引用可回溯到原文档页码与区域」的**多模态文档智能系统 v3**。
+
+真实企业知识库不是纯 md/txt——是扫描合同、带合并单元格的制度表、只把数字画进图里的经营简报。文本 RAG 在这些内容上有天花板：**扫描页抽出空文本、表格被拍平丢结构、图表整个丢弃**。v3 补齐这块。
+
+### 五层架构（解析 → 理解 → 索引 → 生成 → 溯源）
+
+```
+   ⑤ 溯源层    引用 = 文档名+页码+区域(bbox)，可回原图核对        ← L06
+   ④ 生成层    按 element_type 路由：image→现场看图/table→结构化  ← L04,L05
+   ③ 索引层    描述索引入统一 Chroma，metadata 带类型             ← L05
+   ② 理解层    图表→VLM 描述 / 扫描→OCR / 表格→结构化（成本-精度路由）← L02-L04
+   ① 解析层    PDF→Element(type, page, bbox) 流，版面感知分类      ← L01
+   ─────────────────────────────────────────────────────────
+   入口扩展：语音（L07，enable_voice）ASR→主链路→TTS
+```
+
+### 能力与开关（全部默认关闭，任一关掉回退纯文本行为）
+
+| 能力 | 代码 | 课程 | 开关（默认） | 关掉时降级 |
+|---|---|---|---|---|
+| **版面感知解析** | `src/kb_qa/doc_parser.py` | [L01](../../doc-intelligence-lessons/01_pdf_layout/) | `enable_multimodal_ingest`(off) | 只吃 md/txt（现状） |
+| **表格结构化** | `doc_parser.py` | [L02](../../doc-intelligence-lessons/02_table/) | `table_format`(markdown) | — |
+| **置信度 OCR** | `src/kb_qa/ocr.py` | [L03](../../doc-intelligence-lessons/03_ocr/) | `ocr_engine`(off) | 扫描页抽空（现状） |
+| **图表 VLM 理解** | `src/kb_qa/vision.py` | [L04](../../doc-intelligence-lessons/04_chart_vision/) | `enable_image_caption`(off) | 图表元素不入库 |
+| **多模态检索** | `service.py`（描述入统一索引，检索层零改动） | [L05](../../doc-intelligence-lessons/05_multimodal_retrieval/) | 随 `enable_image_caption` | 纯文本检索 |
+| **页码+区域引用** | `src/kb_qa/citation.py`/`generate.py` | [L06](../../doc-intelligence-lessons/06_citation/) | 随多模态入库 | chunk 文本引用（现状） |
+| **语音入口** | `src/kb_qa/voice.py`/`api/main.py` | [L07](../../doc-intelligence-lessons/07_voice/) | `enable_voice`(off) | 端点 404 |
+
+> 🎯 **两条设计主线**：①**成本-精度**——本地 OCR/RapidOCR 打头阵（免费），低置信度页才升级 glm-4v 直读；图表描述入库缓存（按内容哈希去重），命中后才现场看图。钱花在刀刃上。②**溯源**——多模态材料（表格数字/图表读数/OCR 文本）都是「转换的产物」，转换就可能错，所以引用必须能一键回到原图核对。这是作品集「可信度三部曲」的第三步：数字**可复算**（research-assistant 代码解释器）→ 来源**可回访**（浏览器证据链）→ 引用**可回溯**（本项目页码+区域）。
+
+### 收益（对照 text-only 基线，毒文档集实测）
+
+| 题型 | text-only 基线 | v3 全开 | 说明 |
+|---|---|---|---|
+| 纯文本 | 100% | 100% | **防退化**：多模态升级不伤老能力 |
+| 表格题 | 0% | ✅ | 结构化表示进上下文 |
+| 扫描题 | 0% | ✅ | OCR 填充文本层 |
+| 图表题 | 0% | ✅ | VLM 读图入索引 |
+
+> 毒文档集（4 类杀手页 PDF + 15 道 golden 题）见 [data/multimodal_docs/](../../data/multimodal_docs/)，生成脚本可复现。逐机制收益表见 [eval/run_multimodal_eval.py](eval/run_multimodal_eval.py)。**诚实标注**：ragas 在多模态下能验证「答案忠于描述」，但验证不了「描述忠于原图」——这个盲区靠 L04 的 VLM 描述抽查兜底。
+
+> **一句话**：kb-qa 经历三个版本——能跑的 RAG（v1）→ 运维就绪（v2）→ 多模态文档智能（v3）。扫描件、表格、图表都能吃，引用回溯到页码和区域，每个机制默认关、可降级，共 143 个测试（含多模态新增）全绿。
