@@ -15,6 +15,8 @@ from .state import ResearchState, SystemState
 from .tools import web_search
 from .kb_mcp_client import kb_search
 from .config import settings
+# AgentOps L01：全局步数预算（step_delta 给每个节点记账，不影响现状行为）
+from .step_budget import step_delta as _step_delta
 
 log = get_logger("nodes")
 
@@ -248,6 +250,7 @@ def make_research_team(research_subgraph):
                 "findings": sub_result["findings"],
                 "research_summary": sub_result["research_summary"],
                 "re_research_queries": [],  # 清空，避免重复补研
+                **_step_delta("research_team", "re_research"),
             }
 
         # 正常研究：调用并行子图（fresh state，子图无 messages）—— 异步
@@ -262,6 +265,7 @@ def make_research_team(research_subgraph):
         return {
             "findings": sub_result["findings"],
             "research_summary": sub_result["research_summary"],
+            **_step_delta("research_team", topic[:50]),
         }
 
     return research_team
@@ -279,6 +283,8 @@ def make_writer(smart_llm):
     def writer(state: SystemState) -> dict:
         summary = state["research_summary"]
         feedback = state.get("feedback", "")
+        # AgentOps L01：若被步数预算/循环检测截断，在报告里诚实标注
+        truncated = state.get("truncated", False)
 
         # ── Skills 加载（Frontier L03）──────────────────────────
         # 渐进式披露：先看描述（已进 system prompt），用到时加载全文注入。
@@ -347,9 +353,17 @@ def make_writer(smart_llm):
             except Exception as e:
                 log.warning(f"代码解释器失败（降级到 LLM 直出）：{e}")
 
+        # AgentOps L01：诚实收尾标注——带着已有材料出部分结果，而非 raise 崩掉
+        if truncated:
+            report = (
+                f"⚠️ **本次研究因步数预算/循环检测被截断，以下为基于已有材料的部分结果。**\n\n"
+                + report
+            )
+
         return {
             "report": report,
             "messages": [AIMessage(content=report)],
+            **_step_delta("writer", summary[:50]),
         }
 
     return writer
@@ -377,11 +391,25 @@ def make_reviewer(smart_llm):
     @timed_node
     def reviewer(state: SystemState) -> dict:
         from .config import settings  # 延迟 import 避免循环
+        from .step_budget import should_truncate, honest_truncation_delta
 
         report = state.get("report", "")
         rewrite_count = state.get("rewrite_count", 0)
         re_research_count = state.get("re_research_count", 0)
         findings = state.get("findings", [])
+
+        # AgentOps L01：步数预算/循环检测超限 → 诚实收尾（强制 pass，标 truncated）
+        # 关键：这里不 raise——带着已有材料直接通过，writer 已标注截断。
+        # 这是「诚实收尾」与 recursion_limit「崩溃式收尾」的本质区别。
+        truncate, reason = should_truncate(state)
+        if truncate:
+            return {
+                "review_decision": "pass",
+                "rewrite_count": rewrite_count,
+                "feedback": f"诚实收尾：{reason}，带着已有材料出部分结果。",
+                **honest_truncation_delta(reason),
+                **_step_delta("reviewer", "truncate"),
+            }
 
         # 防死循环：两个通道都达上限强制通过
         if rewrite_count >= settings.max_rewrites and re_research_count >= settings.max_re_research:
@@ -389,6 +417,7 @@ def make_reviewer(smart_llm):
                 "review_decision": "pass",
                 "rewrite_count": rewrite_count,
                 "feedback": f"已达重写{settings.max_rewrites}+补研{settings.max_re_research}上限，强制通过。",
+                **_step_delta("reviewer", "max_limits"),
             }
 
         # ── 事实通道（Frontier L05）：检测冲突 ──────────────────
@@ -412,6 +441,7 @@ def make_reviewer(smart_llm):
                 "re_research_count": re_research_count + 1,
                 "re_research_queries": re_research_queries,
                 "feedback": "",  # 事实通道不走 writer
+                **_step_delta("reviewer", "re_research"),
             }
 
         # ── 文字通道（阶段 2）：评估报告质量 ─────────────────────
@@ -420,6 +450,7 @@ def make_reviewer(smart_llm):
                 "review_decision": "pass",
                 "rewrite_count": rewrite_count,
                 "feedback": f"已达最大重写次数 {settings.max_rewrites}，强制通过。",
+                **_step_delta("reviewer", "rewrite_limit"),
             }
 
         resp = smart_llm.invoke(
@@ -442,6 +473,7 @@ def make_reviewer(smart_llm):
             "review_decision": decision,
             "rewrite_count": rewrite_count + 1,
             "feedback": feedback,
+            **_step_delta("reviewer", decision),
         }
 
     return reviewer

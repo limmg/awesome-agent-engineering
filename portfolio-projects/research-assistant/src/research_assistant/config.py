@@ -139,6 +139,18 @@ class Settings(BaseSettings):
     # 视觉模型（混合路线卡住时截图求助用，L05）
     vision_model: str = "glm-4v-plus"
 
+    # ── 全局步数预算（AgentOps L01 · 给轨迹装里程表）──────────────
+    # 与 max_rewrites/max_re_research 这类「局部限位」正交：那些只约束各自回路，
+    # 叠乘后（3 子题 × 重查 2 × 打回 3）总步数仍无界。本开关给整条轨迹一个总里程表。
+    # 超限走「诚实收尾」——带着已有材料直接进 writer 出部分结果（标注截断），而非 raise 崩掉。
+    # 默认关：不破坏现有测试；开启后配合 max_total_steps 用。
+    enable_step_budget: bool = False
+    # 轨迹总步数上限（每经过一个父图节点 +1；recursion_limit 是 langgraph 最后保险丝）
+    max_total_steps: int = 30
+    # 动作签名循环检测（同节点+同参数哈希连续重复 N 次 → 判定原地打转，触发收尾）
+    enable_loop_detect: bool = False
+    loop_detect_window: int = 3
+
 
 @lru_cache
 def get_settings() -> Settings:

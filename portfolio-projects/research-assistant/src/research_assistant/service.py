@@ -74,6 +74,10 @@ def _initial_state(topic: str) -> dict:
         "conflicts": [],
         "re_research_count": 0,
         "re_research_queries": [],
+        # AgentOps L01：全局步数预算 + 诚实收尾
+        "step_count": 0,
+        "truncated": False,
+        "action_history": [],
     }
 
 

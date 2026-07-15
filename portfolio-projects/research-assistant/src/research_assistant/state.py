@@ -17,6 +17,16 @@ from typing_extensions import TypedDict
 from langgraph.graph.message import add_messages
 
 
+def add_int(left: int, right: int) -> int:
+    """整数累加 reducer（AgentOps L01）。
+
+    为什么不用普通 int：rewrite_count/re_research_count 用裸 int 靠「节点返回全量新值」，
+    一旦未来有并行节点写同一个计数器就会互相覆盖。step_count 用 reducer 让每个节点
+    只报「我走了几步」，reducer 自动累加，并发安全。
+    """
+    return (left or 0) + (right or 0)
+
+
 # ════════════════════════════════════════════════════════════
 # 子图 State（并行研究子系统）
 # ════════════════════════════════════════════════════════════
@@ -63,3 +73,10 @@ class SystemState(TypedDict):
     conflicts: Annotated[list[str], operator.add]
     re_research_count: int
     re_research_queries: list[str]
+    # AgentOps L01：全局步数预算 + 诚实收尾标志
+    # step_count 用 add_int reducer：每个节点返回的增量自动累加（不怕并行写覆盖）。
+    # truncated=true 表示本次运行因步数预算/循环检测被截断（writer 据此标注部分结果）。
+    step_count: Annotated[int, add_int]
+    truncated: bool
+    # 动作签名历史（L01 循环检测）：每经过一个节点记一条「节点名:参数哈希」
+    action_history: Annotated[list[str], operator.add]

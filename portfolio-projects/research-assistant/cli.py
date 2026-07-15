@@ -29,7 +29,7 @@ DEFAULT_TOPIC = "2024 年 AI Agent 技术的重要进展"
 
 
 def _initial_state(topic: str) -> dict:
-    """构造一次新研究的输入 State。"""
+    """构造一次新研究的输入 State（与 service.py 保持一致）。"""
     return {
         "messages": [{"role": "user", "content": topic}],
         "findings": [],
@@ -38,6 +38,14 @@ def _initial_state(topic: str) -> dict:
         "review_decision": "",
         "rewrite_count": 0,
         "feedback": "",
+        # Frontier L05：双通道 reviewer 事实修正通道
+        "conflicts": [],
+        "re_research_count": 0,
+        "re_research_queries": [],
+        # AgentOps L01：全局步数预算 + 诚实收尾
+        "step_count": 0,
+        "truncated": False,
+        "action_history": [],
     }
 
 
