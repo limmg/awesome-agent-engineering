@@ -3,6 +3,9 @@
 *.db
 research_assistant.db
 
+# AgentOps L04：发布副作用产物（publish_report 写的 outputs/）
+outputs/
+
 # Docker 持久化挂载目录
 data/
 
