@@ -1,0 +1,106 @@
+{
+  "course": "agent-ops-lessons",
+  "lesson": "L00",
+  "generated_at": "2026-07-15T22:58:41",
+  "honesty_note": "mock 模式下 token 为字符/4 估算；结构性结论（无预算不刹车/降级污染/副作用重放/崩溃全重跑）与真实 API 一致",
+  "current_local_limits": {
+    "max_rewrites": 3,
+    "max_re_research": 2,
+    "num_subtopics": 3,
+    "search_timeout": 15,
+    "recursion_limit": 25
+  },
+  "scenarios": [
+    {
+      "scenario": "pure",
+      "label": "pure",
+      "outcome": "caught",
+      "outcome_desc": "兜住（现有局部限位挡住了）",
+      "total_steps": 7,
+      "total_tokens": 142,
+      "report_has_failure_string": false,
+      "publish_count": 0,
+      "rerun_cost_factor": 1.0,
+      "notes": "纯净跑：无故障，正常产出（证明注入器不干扰）",
+      "elapsed": 0.0
+    },
+    {
+      "scenario": "slow",
+      "label": "① 慢工具：web_search 挂起 30s+（超 search_timeout）",
+      "outcome": "polluted",
+      "outcome_desc": "污染（失败/垃圾字符串混进材料当事实）",
+      "total_steps": 7,
+      "total_tokens": 124,
+      "report_has_failure_string": true,
+      "publish_count": 0,
+      "rerun_cost_factor": 1.0,
+      "notes": "慢工具被 search_timeout(15s) 兜住未卡死，但超时字符串混进材料→污染",
+      "elapsed": 1.01
+    },
+    {
+      "scenario": "flaky",
+      "label": "② 坏工具：搜索随机抛错 / 返回垃圾内容",
+      "outcome": "polluted",
+      "outcome_desc": "污染（失败/垃圾字符串混进材料当事实）",
+      "total_steps": 7,
+      "total_tokens": 162,
+      "report_has_failure_string": true,
+      "publish_count": 0,
+      "rerun_cost_factor": 1.0,
+      "notes": "坏工具：抛错被 catch，但垃圾内容混进材料→污染（更隐蔽）",
+      "elapsed": 0.0
+    },
+    {
+      "scenario": "loop",
+      "label": "③ 循环诱导：结果永远暗示信息不足 + reviewer 永远打回",
+      "outcome": "caught",
+      "outcome_desc": "兜住（现有局部限位挡住了）",
+      "total_steps": 11,
+      "total_tokens": 220,
+      "report_has_failure_string": false,
+      "publish_count": 0,
+      "rerun_cost_factor": 1.0,
+      "notes": "循环诱导：reviewer 打回到 max_rewrites 才停，局部限位兜住但步数叠乘",
+      "elapsed": 0.0
+    },
+    {
+      "scenario": "crash",
+      "label": "④ 进程崩溃：跑到 writer 节点时进程被杀",
+      "outcome": "full_rerun",
+      "outcome_desc": "全部重跑（崩溃后重做量无界）",
+      "total_steps": 8,
+      "total_tokens": 115,
+      "report_has_failure_string": false,
+      "publish_count": 0,
+      "rerun_cost_factor": 1.22,
+      "notes": "崩溃在 writer 节点；现状无 checkpoint 续跑，重跑全程（重做量≈×2）",
+      "elapsed": 0.0
+    },
+    {
+      "scenario": "bomb",
+      "label": "⑤ 预算炸弹：子题返回超长文本，token 爆炸",
+      "outcome": "overspent",
+      "outcome_desc": "超支（token 烧穿预算无刹车）",
+      "total_steps": 7,
+      "total_tokens": 70714,
+      "report_has_failure_string": false,
+      "publish_count": 0,
+      "rerun_cost_factor": 1.0,
+      "notes": "预算炸弹：无成本刹车，token 烧穿不停（mock 估算值，结构结论同真实）",
+      "elapsed": 0.0
+    },
+    {
+      "scenario": "sideeffect",
+      "label": "⑥ 危险副作用：发布动作无门控被重复执行",
+      "outcome": "duplicate",
+      "outcome_desc": "重复执行（副作用被重放）",
+      "total_steps": 9,
+      "total_tokens": 168,
+      "report_has_failure_string": false,
+      "publish_count": 2,
+      "rerun_cost_factor": 1.0,
+      "notes": "副作用无门控：发布被执行 2 次（打回重写导致重复发布）",
+      "elapsed": 0.0
+    }
+  ]
+}
