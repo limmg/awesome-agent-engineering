@@ -202,6 +202,17 @@ class Settings(BaseSettings):
     # 默认关：invoke/stream 不登记 jobs；开启后走注册表 + 恢复入口。
     enable_job_registry: bool = False
 
+    # ── 轨迹级可观测（AgentOps L07 · 一次运行一行体检报告）──────
+    # 与 ops-L01/L02 请求级日志/tracing 的区别：那些看 span（单步），
+    # 本开关看整条轨迹的运行级聚合（回答「这次跑得健康吗」）。
+    # 每次运行结束输出一行 run summary + 阈值告警。
+    # 默认关：不输出 run summary（现状行为）；开启后每次必出 summary 行。
+    enable_run_summary: bool = False
+    # 阈值告警（超阈值打 WARNING 结构化事件）
+    alert_steps_high: int = 25
+    alert_budget_ratio_high: float = 0.9
+    alert_degraded_high: int = 2
+
 
 @lru_cache
 def get_settings() -> Settings:

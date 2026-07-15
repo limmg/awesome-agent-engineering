@@ -19,6 +19,7 @@ SSE 事件协议（双层流，阶段 3 核心）：
 from __future__ import annotations
 
 import json
+import time
 from typing import AsyncIterator
 
 from langchain_core.messages import AIMessage
@@ -115,8 +116,16 @@ async def invoke(topic: str, thread_id: str) -> dict:
     async with get_async_saver_context() as saver:
         system = build_system(smart_llm, fast_llm, sub, checkpointer=saver)
         config = {"configurable": {"thread_id": thread_id}}
+        t0 = time.time()
         result = await system.ainvoke(_initial_state(topic), config=config)
         serialized = _serialize_state(result)
+
+        # AgentOps L07：输出 run summary 体检报告（enable_run_summary 时）
+        if settings.enable_run_summary:
+            from .run_summary import build_summary, emit_summary
+            summary = build_summary(serialized, run_id=thread_id, thread_id=thread_id,
+                                    topic=topic, elapsed=time.time() - t0)
+            emit_summary(summary)
 
         # ── 反思式写入（Frontier L02）──────────────────────
         # 研究结束后把 findings 提炼成记忆条目。失败不阻塞主流程（降级）。
