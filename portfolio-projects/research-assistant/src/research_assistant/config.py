@@ -174,6 +174,16 @@ class Settings(BaseSettings):
     # 搜索重试次数（治抖动，0=不重试；熔断器治持续故障，重试治偶发抖动）
     search_retry: int = 0
 
+    # ── 副作用与幂等（AgentOps L04）──────────────────────────────
+    # 现状全是只读工具，所以「没出过事」是因为「没做过危险的事」。
+    # 本开关启用后：reviewer PASS 后加一个 publish 节点（写 outputs/ + sqlite 注册表），
+    # 带幂等键 hash(thread_id+内容指纹)——重复触发返回上次结果（no-op）。
+    # 这是 L06 断点续跑不重放副作用的地基。
+    # 默认关：图结构与现状完全一致（不加 publish 节点）。
+    enable_publish: bool = False
+    # dry-run：只打印将执行的动作不真执行（上线前演练）
+    publish_dry_run: bool = False
+
 
 @lru_cache
 def get_settings() -> Settings:

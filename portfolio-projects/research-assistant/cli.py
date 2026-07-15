@@ -51,6 +51,8 @@ def _initial_state(topic: str) -> dict:
         "cost_mode": "normal",
         # AgentOps L03：诚实降级协议
         "failed_subtopics": [],
+        # AgentOps L04：副作用发布结果
+        "publish_result": {},
     }
 
 

@@ -24,6 +24,7 @@ from .nodes import (
     route_to_researchers,
 )
 from .state import ResearchState, SystemState
+from .config import settings
 
 
 def build_research_subgraph(fast_llm, smart_llm):
@@ -82,8 +83,23 @@ def build_system(smart_llm, fast_llm, research_subgraph, checkpointer=None):
     builder.add_edge(START, "research_team")
     builder.add_edge("research_team", "writer")
     builder.add_edge("writer", "reviewer")
-    # ⭐ 双通道条件边：pass→END, rework→writer, re_research→research_team
-    builder.add_conditional_edges("reviewer", review_route)
+
+    # AgentOps L04：enable_publish 时加 publish 节点（reviewer PASS 后发布）
+    # 关闭时图结构与现状完全一致（review_route 的 pass→END）。
+    if settings.enable_publish:
+        from .publish import make_publish_node
+        builder.add_node("publish", make_publish_node())
+        # review_route 的 pass → publish → END（而非直接 END）
+        # 用 conditional_edge 的 path_map 把 pass 映射到 publish
+        def review_route_with_publish(state):
+            target = review_route(state)
+            # review_route 返回 END 表示 pass → 改路由到 publish
+            return "publish" if target == END else target
+        builder.add_conditional_edges("reviewer", review_route_with_publish)
+        builder.add_edge("publish", END)
+    else:
+        # ⭐ 双通道条件边：pass→END, rework→writer, re_research→research_team
+        builder.add_conditional_edges("reviewer", review_route)
 
     if checkpointer is not None:
         return builder.compile(checkpointer=checkpointer)

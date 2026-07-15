@@ -88,3 +88,5 @@ class SystemState(TypedDict):
     # AgentOps L03：诚实降级协议
     # failed_subtopics 记录检索失败的子题（researcher 上报，writer 在报告里声明）
     failed_subtopics: Annotated[list[str], operator.add]
+    # AgentOps L04：副作用发布结果（幂等键去重后的发布记录）
+    publish_result: dict
