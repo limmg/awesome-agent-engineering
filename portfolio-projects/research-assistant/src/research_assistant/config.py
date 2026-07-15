@@ -193,6 +193,15 @@ class Settings(BaseSettings):
     # 审批策略：auto（全过）/ first_only（仅首次发布审）/ always（每次都审）
     hitl_policy: str = "first_only"
 
+    # ── 断点续跑（AgentOps L06 · 崩溃后的重做量有界）────────────
+    # 现状 AsyncSqliteSaver 被动存了状态，但服务层没有任务注册——崩溃后没人知道
+    # 「哪些任务没跑完、该从哪继续」。本开关启用 jobs 注册表：
+    # 提交即登记、完成即更新、启动时扫描 running 的孤儿任务续跑。
+    # 恢复语义：同 thread_id 以 None 输入重新 ainvoke → langgraph 从最后 checkpoint 续跑
+    # （已完成的节点不重做）+ 副作用靠 L04 幂等键不重放。
+    # 默认关：invoke/stream 不登记 jobs；开启后走注册表 + 恢复入口。
+    enable_job_registry: bool = False
+
 
 @lru_cache
 def get_settings() -> Settings:

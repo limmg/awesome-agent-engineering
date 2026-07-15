@@ -142,6 +142,98 @@ async def invoke(topic: str, thread_id: str) -> dict:
         return serialized
 
 
+async def submit_research(topic: str, thread_id: str | None = None) -> dict:
+    """提交一个研究任务（长任务异步化，AgentOps L06）。
+
+    与 invoke 的区别：
+        - invoke：同步等结果（适合短任务 / 测试）
+        - submit_research：立即返回 task_id，后台跑（适合长任务）
+
+    enable_job_registry=False 时退化为直接 invoke + 不登记（现状行为）。
+    enable_job_registry=True 时登记进 jobs 表，崩溃可恢复。
+    """
+    if not settings.enable_job_registry:
+        # 现状行为：直接跑
+        thread_id = thread_id or f"thread-{__import__('uuid').uuid4().hex[:8]}"
+        result = await invoke(topic, thread_id)
+        return {"task_id": None, "thread_id": thread_id, "status": "done", "result": result}
+
+    from .jobs import submit_job, update_status, STATUS_RUNNING, STATUS_DONE, STATUS_FAILED
+    job = submit_job(topic, thread_id)
+    task_id = job["task_id"]
+    thread_id = job["thread_id"]
+
+    update_status(task_id, STATUS_RUNNING)
+    try:
+        result = await invoke(topic, thread_id)
+        update_status(task_id, STATUS_DONE, result=result)
+        return {"task_id": task_id, "thread_id": thread_id, "status": "done", "result": result}
+    except Exception as e:
+        update_status(task_id, STATUS_FAILED, error=str(e))
+        raise
+
+
+async def resume_job(task_id: str) -> dict:
+    """断点续跑：从 checkpoint 恢复一个崩溃/中断的任务（AgentOps L06 核心）。
+
+    机制：同 thread_id 以 None 输入重新 ainvoke → langgraph 从最后 checkpoint 续跑。
+    - 已完成的 researcher/writer 不重跑（checkpoint 记录了已完成节点）
+    - 已执行的副作用靠 L04 幂等键不重放（同内容 no-op）
+    - 重做量 = 从最后一个未完成节点到 END（而非全部重跑）
+
+    Returns:
+        恢复后的最终 state
+    """
+    from .jobs import get_job, update_status, STATUS_RUNNING, STATUS_DONE, STATUS_FAILED, STATUS_INTERRUPTED
+
+    job = get_job(task_id)
+    if job is None:
+        raise ValueError(f"任务 {task_id} 不存在")
+    if job["status"] not in (STATUS_RUNNING, STATUS_INTERRUPTED, STATUS_FAILED):
+        # 已完成的不恢复
+        return job.get("result") or {"status": job["status"]}
+
+    thread_id = job["thread_id"]
+    topic = job["topic"]
+    update_status(task_id, STATUS_RUNNING)
+
+    fast_llm = make_fast_llm()
+    smart_llm = make_smart_llm()
+    sub = build_research_subgraph(fast_llm, smart_llm)
+    from .cost_budget import reset_tracker
+    reset_tracker()
+
+    async with get_async_saver_context() as saver:
+        system = build_system(smart_llm, fast_llm, sub, checkpointer=saver)
+        config = {"configurable": {"thread_id": thread_id}}
+        # ⭐ 关键：None 输入 → 从最后 checkpoint 续跑（不重做已完成节点）
+        result = await system.ainvoke(None, config=config)
+        serialized = _serialize_state(result)
+        update_status(task_id, STATUS_DONE, result=serialized)
+        return serialized
+
+
+async def recover_orphans() -> list[dict]:
+    """启动时扫描孤儿任务并尝试恢复（AgentOps L06）。
+
+    孤儿任务 = 进程崩了没跑完的（running/interrupted 状态）。
+    重启后调本函数，对每个孤儿调 resume_job。
+
+    Returns:
+        [{"task_id": ..., "status": "recovered"|"failed", ...}, ...]
+    """
+    from .jobs import find_orphans
+    orphans = find_orphans()
+    results = []
+    for o in orphans:
+        try:
+            await resume_job(o["task_id"])
+            results.append({"task_id": o["task_id"], "status": "recovered", "topic": o["topic"]})
+        except Exception as e:
+            results.append({"task_id": o["task_id"], "status": "failed", "error": str(e)})
+    return results
+
+
 async def submit_approval(thread_id: str, approved: bool, comment: str = "") -> dict:
     """提交审批结果，恢复被 interrupt 暂停的 publish（AgentOps L05）。
 
