@@ -142,6 +142,70 @@ async def invoke(topic: str, thread_id: str) -> dict:
         return serialized
 
 
+async def submit_approval(thread_id: str, approved: bool, comment: str = "") -> dict:
+    """提交审批结果，恢复被 interrupt 暂停的 publish（AgentOps L05）。
+
+    用法（API/CLI）：
+        1. stream_research 跑到 publish 节点时 interrupt 暂停，SSE 发 approval_required 事件
+        2. 人审批后调本函数，带 Command(resume={"approved": ...}) 重新 invoke 同 thread
+        3. publish 节点拿到 resume 值，批准则发布，否决则诚实收尾
+
+    跨进程/跨重启恢复：checkpointer 存了中断状态，即使进程退出，
+    重启后用同 thread_id 调本函数也能恢复（审批可以隔夜）。
+
+    Returns:
+        publish 节点的最终结果（published 或 rejected）
+    """
+    from langgraph.types import Command
+
+    fast_llm = make_fast_llm()
+    smart_llm = make_smart_llm()
+    sub = build_research_subgraph(fast_llm, smart_llm)
+
+    async with get_async_saver_context() as saver:
+        system = build_system(smart_llm, fast_llm, sub, checkpointer=saver)
+        config = {"configurable": {"thread_id": thread_id}}
+        # Command(resume=...) 恢复 interrupt，resume 值传给 publish 节点的 interrupt() 返回
+        result = await system.ainvoke(
+            Command(resume={"approved": approved, "comment": comment}),
+            config=config,
+        )
+        return _serialize_state(result)
+
+
+def is_awaiting_approval(thread_id: str) -> dict | None:
+    """检查某 thread 是否在等审批（AgentOps L05，给 API 轮询用）。
+
+    Returns:
+        None = 不在等审批；dict = interrupt 的 value（含 content_preview 等供前端展示）
+    """
+    import asyncio as _asyncio
+
+    async def _check():
+        fast_llm = make_fast_llm()
+        smart_llm = make_smart_llm()
+        sub = build_research_subgraph(fast_llm, smart_llm)
+        async with get_async_saver_context() as saver:
+            system = build_system(smart_llm, fast_llm, sub, checkpointer=saver)
+            config = {"configurable": {"thread_id": thread_id}}
+            state = await system.aget_state(config)
+            if state and state.next and "publish" in state.next:
+                # 有 publish 任务待执行 + 有 interrupt → 在等审批
+                tasks = state.tasks or []
+                for t in tasks:
+                    if hasattr(t, "interrupts") and t.interrupts:
+                        return t.interrupts[0].value
+                return {"action": "publish_report", "thread_id": thread_id}
+            return None
+
+    try:
+        loop = _asyncio.get_event_loop()
+    except RuntimeError:
+        loop = _asyncio.new_event_loop()
+        _asyncio.set_event_loop(loop)
+    return loop.run_until_complete(_check()) if not loop.is_running() else None
+
+
 async def stream_research(topic: str, thread_id: str) -> AsyncIterator[dict]:
     """异步生成器：yield SSE 事件 dict。
 

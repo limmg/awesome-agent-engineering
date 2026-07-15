@@ -184,6 +184,15 @@ class Settings(BaseSettings):
     # dry-run：只打印将执行的动作不真执行（上线前演练）
     publish_dry_run: bool = False
 
+    # ── 人在环审批（AgentOps L05 · 危险动作的门闸）────────────────
+    # 用 langgraph interrupt() 给危险动作装审批门：节点内打断→State 存入 checkpointer
+    # →进程可退出→带 resume 值重新 invoke 同 thread 继续。
+    # 策略分层：dry_run 自动过 / 首次发布必审 / 同 thread 重复发布（幂等 no-op）免审。
+    # 默认关：publish 节点不调 interrupt；开启后 publish 前 interrupt 等审批。
+    enable_hitl: bool = False
+    # 审批策略：auto（全过）/ first_only（仅首次发布审）/ always（每次都审）
+    hitl_policy: str = "first_only"
+
 
 @lru_cache
 def get_settings() -> Settings:

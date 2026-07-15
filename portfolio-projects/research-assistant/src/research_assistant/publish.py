@@ -160,14 +160,68 @@ def get_publish_history(thread_id: str) -> list[dict]:
 
 # ── 节点工厂：可选的 publish 节点（reviewer PASS 后）─────────
 
+def _needs_approval(thread_id: str, content: str) -> bool:
+    """策略判断：这次 publish 是否需要人审批（AgentOps L05）。
+
+    三级策略（config.hitl_policy）：
+        - auto：全过（HITL 开了等于没开，演示基线用）
+        - first_only：仅首次发布审（默认，最实用——后续幂等 no-op 免审）
+        - always：每次都审（最保守）
+    """
+    policy = settings.hitl_policy
+    if policy == "auto":
+        return False
+    if policy == "always":
+        return True
+    # first_only：查注册表，已发布过（幂等重放）→ 免审
+    history = get_publish_history(thread_id)
+    key = idempotency_key(thread_id, content)
+    for h in history:
+        if h["key"] == key:
+            return False  # 幂等重放，免审
+    return True  # 首次发布，必审
+
+
 def make_publish_node():
-    """发布节点工厂：reviewer PASS 后执行 publish_report（带幂等）。
+    """发布节点工厂：reviewer PASS 后执行 publish_report（带幂等 + HITL 审批）。
 
     enable_publish=False 时图里根本不加这个节点（现状等价）。
+    enable_hitl=True 时：publish 前 interrupt() 暂停等人审批，
+        批准 → 继续 publish；否决 → 走诚实收尾（标 truncated，不发布）。
     """
     def publish_node(state) -> dict:
+        from langgraph.types import interrupt
         report = state.get("report", "")
         thread_id = "default"  # thread_id 在 configurable 里，节点内取默认
+
+        # AgentOps L05：HITL 审批门（enable_hitl 时）
+        if settings.enable_hitl and _needs_approval(thread_id, report):
+            # interrupt 暂停：进程可退出，带 resume 值重新 invoke 同 thread 继续
+            # resume 值约定：{"approved": True/False, "comment": "..."}
+            decision = interrupt({
+                "action": "publish_report",
+                "thread_id": thread_id,
+                "content_preview": report[:200],
+                "content_length": len(report),
+                "policy": settings.hitl_policy,
+            })
+            # decision 是 Command(resume=...) 传入的值
+            approved = False
+            if isinstance(decision, dict):
+                approved = decision.get("approved", False)
+            elif isinstance(decision, str):
+                approved = decision.lower() in ("approved", "yes", "ok", "批准", "同意")
+
+            if not approved:
+                # 否决 → 诚实收尾（不发布，标 truncated）
+                log.info(f"publish 被人否决，走诚实收尾（不发布）")
+                return {
+                    "publish_result": {"published": False, "rejected": True},
+                    "truncated": True,
+                    "messages": [],
+                }
+
+        # 批准（或无需审批）→ 执行 publish（幂等）
         result = publish_report(thread_id, report)
         return {
             "publish_result": result,
