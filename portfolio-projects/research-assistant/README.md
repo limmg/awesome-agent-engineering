@@ -19,7 +19,7 @@
 | 🌐 **FastAPI 服务化** | REST + SSE，自带前端页面，Docker 一键部署 | 脚本 → 生产服务 |
 | 🚦 **并发限流** | Semaphore 控制 web_search QPS，防搜索 API 封禁 | 抗突发流量 |
 | 📊 **结构化日志** | 节点进出 + 耗时 + 结果摘要，可接 ELK/Loki | 可观测性 |
-| ✅ **104 单元测试** | 不联网、不调真实 LLM、不污染生产 db（含 frontier 79 个新测试）| 可回归 |
+| ✅ **219 单元测试** | 不联网、不调真实 LLM、不污染生产 db（基础 25 + frontier 79 + GUI 19 + AgentOps 96）| 可回归 |
 
 ---
 
@@ -201,7 +201,7 @@ research-assistant/
 │   ├── main.py                   ← FastAPI app（lifespan + 路由）
 │   └── schemas.py                ← Pydantic 请求/响应模型
 ├── static/index.html             ← 极简聊天前端
-└── tests/                        ← 25 个单元测试（不联网/不调真实 LLM）
+└── tests/                        ← 219 个单元测试（不联网/不调真实 LLM）
 ```
 
 ---
@@ -237,7 +237,7 @@ research-assistant/
 > **AI 研究分析助手**（Python · LangGraph · FastAPI · Docker）
 > - 设计双层 LangGraph 图（并行研究子图 + 审稿父图），3 个 researcher 用 `Send` 并行检索，配合 Semaphore 限流，相比串行约 2-3× 加速
 > - 多模型路由降本（glm-4-flash 并行执行 + glm-4 决策写作，省约 80% 成本）+ reviewer 审稿回路（条件边 + 防死循环）提升报告质量
-> - FastAPI + SSE 双层流式（进度 + token 逐字输出），SqliteSaver 跨重启持久化，25 单元测试，Docker 一键部署
+> - FastAPI + SSE 双层流式（进度 + token 逐字输出），SqliteSaver 跨重启持久化，219 单元测试，Docker 一键部署
 
 ### 面试深聊版（按考点展开）
 

@@ -7,7 +7,7 @@
 [![Tests](https://github.com/kobejiasuoer/awesome-agent-engineering/actions/workflows/tests.yml/badge.svg)](https://github.com/kobejiasuoer/awesome-agent-engineering/actions/workflows/tests.yml)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Lessons](https://img.shields.io/badge/lessons-95-1f883d)](#课程路线)
-[![Tests](https://img.shields.io/badge/tests-485-0969da)](#可验证性)
+[![Tests](https://img.shields.io/badge/tests-362-0969da)](#可验证性)
 [![License](https://img.shields.io/badge/license-MIT-f1e05a)](LICENSE)
 
 这是一套面向 Python 开发者的 **LLM 应用工程实战课程**。95 节课程沿同一条主线递进：先手写核心机制，再用 LangChain / LangGraph 工程化，最后落到两个带测试、评估、API 与 Docker 的完整项目。
@@ -20,7 +20,7 @@
 
 | 课程 | 作品项目 | 自动化测试 | 语言 |
 |---:|---:|---:|---:|
-| 9 门 / 95 节 | 2 个 | 485 项 | 中文 + English |
+| 9 门 / 95 节 | 2 个 | 362 项 | 中文 + English |
 
 - **从原理到框架**：RAG、Function Calling、ReAct 都先手写，再对照框架实现。
 - **从结果到证据**：RAGAS、消融实验、Agent 轨迹评估与 mini-benchmark 贯穿课程。

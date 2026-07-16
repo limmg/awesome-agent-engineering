@@ -7,7 +7,7 @@
 [![Tests](https://github.com/kobejiasuoer/awesome-agent-engineering/actions/workflows/tests.yml/badge.svg)](https://github.com/kobejiasuoer/awesome-agent-engineering/actions/workflows/tests.yml)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Lessons](https://img.shields.io/badge/lessons-95-1f883d)](#learning-path)
-[![Tests](https://img.shields.io/badge/tests-485-0969da)](#verification)
+[![Tests](https://img.shields.io/badge/tests-362-0969da)](#verification)
 [![License](https://img.shields.io/badge/license-MIT-f1e05a)](LICENSE)
 
 A hands-on **LLM application engineering course** for Python developers. Its 95 lessons follow one continuous path: hand-write the core mechanisms, translate them into LangChain and LangGraph, then integrate them into two tested projects with evaluation, APIs, and Docker support.
@@ -20,7 +20,7 @@ This repository goes beyond API recipes. It asks: **Why choose this design? What
 
 | Courses | Portfolio apps | Automated tests | Languages |
 |---:|---:|---:|---:|
-| 9 / 95 lessons | 2 | 485 | Chinese + English |
+| 9 / 95 lessons | 2 | 362 | Chinese + English |
 
 - **Principles before frameworks:** hand-written RAG, Function Calling, and ReAct are paired with framework implementations.
 - **Evidence before claims:** RAGAS, ablations, trajectory evaluation, and local mini-benchmarks run through the curriculum.
