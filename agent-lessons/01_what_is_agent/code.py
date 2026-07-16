@@ -9,6 +9,15 @@ L01 — 认识 Agent：从问答到行动
     - calculator：做数学计算（LLM 自己算不准）
 
 运行：python agent-lessons/01_what_is_agent/code.py
+
+【PyCharm 注意】
+本文件名叫 code.py，会遮蔽 Python 标准库的 code 模块。
+PyCharm 用「调试 Debug」启动时，调试器需要 from code import InteractiveConsole，
+会误导入本文件 → ImportError（继而可能再报 IronPython 的 SyntaxError）。
+解决：
+  1. 用「运行 Run」而不是「调试 Debug」；或
+  2. 在项目根终端执行上面的 python 命令；或
+  3. 需要断点时，把本文件临时复制/改名为 main.py 再调试。
 """
 from __future__ import annotations
 
@@ -19,7 +28,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from zhipuai import ZhipuAI
 
-CHAT_MODEL = "glm-4"  # 想免费可换 "glm-4-flash"
+CHAT_MODEL = "glm-4.7-flash"  # 想免费可换 "glm-4-flash"
 
 
 def create_client() -> ZhipuAI:
